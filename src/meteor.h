@@ -11,6 +11,7 @@ extern const double METEOR_MAX_COUNT;
 extern const double METEOR_SMALL_SIZE;
 extern const double METEOR_MEDIUM_SIZE;
 extern const double METEOR_LARGE_SIZE;
+extern const double METEOR_ROTATION_SPEED;
 
 typedef enum {
   METEOR_SMALL,

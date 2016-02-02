@@ -5,12 +5,13 @@
 #define METEOR_BITMAP_PATH3 "res/images/stone3.png"
 
 const double METEOR_MIN_SPEED = 1.6;
-const double METEOR_MAX_SPEED = 8.0;
+const double METEOR_MAX_SPEED = 6.0;
 const double METEOR_MIN_COUNT = 10;
 const double METEOR_MAX_COUNT = 30;
 const double METEOR_SMALL_SIZE = 30;
 const double METEOR_MEDIUM_SIZE = 60;
 const double METEOR_LARGE_SIZE = 120;
+const double METEOR_ROTATION_SPEED = M_PI / 30;
 
 static double random_range(const double min, const double max) {
   const double range = max - min;
@@ -59,8 +60,8 @@ meteor *meteor_init(const size window_size) {
   m->speed = random_range(METEOR_MIN_SPEED, METEOR_MAX_SPEED);
 
   m->next = NULL;
-  m->angle = 0;
-  m->w = 0;
+  m->angle = random_range(0, 2 * M_PI);
+  m->w = random_range(-METEOR_ROTATION_SPEED, METEOR_ROTATION_SPEED);
 
   // spawn point
   ran = rand() % 4;
@@ -138,6 +139,7 @@ bool meteor_is_inside_screen(meteor *m, const size window_size) {
 }
 
 void meteor_update(meteor *m, const size window_size) {
+  // movement
   if (m->center.x + m->v.dx > -2 * METEOR_LARGE_SIZE &&
       m->center.x + m->v.dx < window_size.w + 2 * METEOR_LARGE_SIZE) {
     m->center.x += m->v.dx;
@@ -153,6 +155,9 @@ void meteor_update(meteor *m, const size window_size) {
     m->speed = 0;
     m->v = velocity_init(m->speed, m->direction);
   }
+
+  // rotation
+  m->angle += m->w;
 }
 
 void meteor_draw(meteor *m) {
@@ -168,7 +173,9 @@ void meteor_draw(meteor *m) {
       ms = METEOR_LARGE_SIZE;
       break;
   }
-  al_draw_scaled_rotated_bitmap(m->bitmap, 0, 0,
+  al_draw_scaled_rotated_bitmap(m->bitmap,
+                                al_get_bitmap_width(m->bitmap) / 2.0,
+                                al_get_bitmap_height(m->bitmap) / 2.0,
                                 m->center.x, m->center.y,
                                 ms / al_get_bitmap_width(m->bitmap),
                                 ms / al_get_bitmap_height(m->bitmap),

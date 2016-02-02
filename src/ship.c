@@ -136,6 +136,30 @@ void ship_shoot_bullet(ship *s) {
   }
 }
 
+bool ship_collide_with_meteor(ship *s, meteor *m) {
+  const double dx = s->center.x - m->center.x;
+  const double dy = s->center.y - m->center.y;
+  const double dis = sqrt(dx * dx + dy * dy);
+
+  if (dis <= SHIP_SIZE / 2 + meteor_get_size(m) / 2) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool ship_check_collision(ship *s, meteor_shower *ms) {
+  meteor *iter = NULL;
+  iter = ms->meteors;
+  do {
+    if (ship_collide_with_meteor(s, iter)) {
+      return true;
+    }
+    iter = iter->next;
+  } while (iter != NULL);
+  return false;
+}
+
 void ship_draw(ship *s) {
   bullet_draw(s->bullets);
 

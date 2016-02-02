@@ -45,11 +45,23 @@ game *game_init(const int w, const int h) {
     free(g);
     return NULL;
   }
+
+  g->object.ms = meteor_shower_init(size_init(g->core.width, g->core.height));
+  if (!g->object.ms) {
+    error_message("fail to create allegro event queue");
+    al_destroy_display(g->core.display);
+    al_destroy_timer(g->core.timer);
+    al_destroy_event_queue(g->core.event_queue);
+    ship_destroy(g->object.s);
+    free(g);
+    return NULL;
+  }
   return g;
 }
 
 bool game_init_library() {
   /* allegro main library */
+  srand(time(NULL));
   if(!al_init()) {
     error_message("fail to initialize allegro library");
     return false;
@@ -135,7 +147,10 @@ void game_main_loop(game *g) {
         } else if (event.type == ALLEGRO_EVENT_TIMER) {
           redraw = true;
 
-          ship_update(g->object.s, size_init(g->core.width, g->core.height));
+          ship_update(g->object.s,
+                      size_init(g->core.width, g->core.height));
+          meteor_shower_update(g->object.ms,
+                               size_init(g->core.width, g->core.height));
         } else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
           al_acknowledge_resize(g->core.display);
           g->core.width = event.display.width;
@@ -143,7 +158,10 @@ void game_main_loop(game *g) {
 
           regular_message("window resize event");
 
-          ship_update(g->object.s, size_init(g->core.width, g->core.height));
+          ship_update(g->object.s,
+                      size_init(g->core.width, g->core.height));
+          meteor_shower_update(g->object.ms,
+                               size_init(g->core.width, g->core.height));
         } else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
         } else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
         } else if (event.type == ALLEGRO_EVENT_KEY_UP) {
@@ -186,8 +204,10 @@ void game_main_loop(game *g) {
 
       if (redraw) {
         al_clear_to_color(al_map_rgb(0, 0, 0));
-        /*al_draw_rectangle(100, 100, 200, 200, al_map_rgb(255, 255, 255), 3);*/
+
         ship_draw(g->object.s);
+        meteor_shower_draw(g->object.ms);
+
         al_flip_display();
 
         redraw = false;
@@ -206,6 +226,8 @@ void game_destroy(game *g) {
       al_destroy_event_queue(g->core.event_queue);
     if (g->object.s)
       ship_destroy(g->object.s);
+    if (g->object.ms)
+      meteor_shower_destroy(g->object.ms);
     free(g);
   }
 

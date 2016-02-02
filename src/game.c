@@ -151,6 +151,9 @@ void game_main_loop(game *g) {
                       size_init(g->core.width, g->core.height));
           meteor_shower_update(g->object.ms,
                                size_init(g->core.width, g->core.height));
+          if (ship_check_collision(g->object.s, g->object.ms)) {
+            regular_message("ship collide with meteor !!!");
+          }
         } else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
           al_acknowledge_resize(g->core.display);
           g->core.width = event.display.width;

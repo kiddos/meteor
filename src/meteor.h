@@ -35,8 +35,8 @@ typedef struct meteor_shower_t {
 } meteor_shower;
 
 meteor *meteor_init(const size window_size);
-bool meteor_is_inside_screen(meteor *m, const size window_size);
-double meteor_get_size(meteor *m);
+bool meteor_is_inside_screen(const meteor *m, const size window_size);
+double meteor_get_size(const meteor *m);
 void meteor_update(meteor *m, const size window_size);
 void meteor_draw(meteor *m);
 void meteor_destroy(meteor *m);

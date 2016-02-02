@@ -126,7 +126,7 @@ meteor *meteor_init(const size window_size) {
   return m;
 }
 
-bool meteor_is_inside_screen(meteor *m, const size window_size) {
+bool meteor_is_inside_screen(const meteor *m, const size window_size) {
   if (m->center.x + m->v.dx < -2 * METEOR_LARGE_SIZE &&
       m->center.x + m->v.dx > window_size.w + 2 * METEOR_LARGE_SIZE) {
     return false;
@@ -138,7 +138,7 @@ bool meteor_is_inside_screen(meteor *m, const size window_size) {
   return true;
 }
 
-double meteor_get_size(meteor *m) {
+double meteor_get_size(const meteor *m) {
   double ms = 0;
   switch (m->size) {
     case METEOR_SMALL:

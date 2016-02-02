@@ -138,6 +138,22 @@ bool meteor_is_inside_screen(meteor *m, const size window_size) {
   return true;
 }
 
+double meteor_get_size(meteor *m) {
+  double ms = 0;
+  switch (m->size) {
+    case METEOR_SMALL:
+      ms = METEOR_SMALL_SIZE;
+      break;
+    case METEOR_MEDIUM:
+      ms = METEOR_MEDIUM_SIZE;
+      break;
+    case METEOR_LARGE:
+      ms = METEOR_LARGE_SIZE;
+      break;
+  }
+  return ms;
+}
+
 void meteor_update(meteor *m, const size window_size) {
   // movement
   if (m->center.x + m->v.dx > -2 * METEOR_LARGE_SIZE &&
@@ -161,18 +177,7 @@ void meteor_update(meteor *m, const size window_size) {
 }
 
 void meteor_draw(meteor *m) {
-  double ms = 0;
-  switch (m->size) {
-    case METEOR_SMALL:
-      ms = METEOR_SMALL_SIZE;
-      break;
-    case METEOR_MEDIUM:
-      ms = METEOR_MEDIUM_SIZE;
-      break;
-    case METEOR_LARGE:
-      ms = METEOR_LARGE_SIZE;
-      break;
-  }
+  const double ms = meteor_get_size(m);
   al_draw_scaled_rotated_bitmap(m->bitmap,
                                 al_get_bitmap_width(m->bitmap) / 2.0,
                                 al_get_bitmap_height(m->bitmap) / 2.0,

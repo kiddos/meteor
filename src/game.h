@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "ship.h"
+#include "meteor.h"
 
 // constants
 extern const double FPS;
@@ -19,6 +20,7 @@ typedef struct game_t {
 
   struct {
     ship *s;
+    meteor_shower *ms;
   } object;
 } game;
 

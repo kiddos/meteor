@@ -197,7 +197,8 @@ void ship_shoot_bullet(ship *s) {
     }
 
     // shooting bullet cost mana
-    s->attr.mana -= SHIP_BULLET_MANA;
+    if (s->attr.mana - SHIP_BULLET_MANA >= 0)
+      s->attr.mana -= SHIP_BULLET_MANA;
   } else {
     error_message("ship object null pointer");
   }

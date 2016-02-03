@@ -4,8 +4,8 @@ const double STATUS_BAR_HEIGHT = 60;
 const double STATUS_BAR_PADDING = 6;
 const uint32_t STATUS_BAR_FONT_SIZE = 36;
 const double STATUS_BAR_LIVE_ICON_SIZE = 26;
-const double STATUS_BAR_MANA_BAR_HIEGHT = 26;
-const double STATUS_BAR_MANA_BAR_MAX_LENGTH = 90;
+const double STATUS_BAR_MANA_BAR_HIEGHT = 15;
+const double STATUS_BAR_MANA_BAR_MAX_LENGTH = 110;
 const char * const STATUS_BAR_LIVE_ICON_FILE_PATH = "res/images/lives.png";
 
 status_bar *status_bar_init(ship *shp, const size window_size) {
@@ -112,6 +112,8 @@ void status_bar_draw(status_bar *sb) {
         STATUS_BAR_LIVE_ICON_SIZE - STATUS_BAR_PADDING;
   const double live_icon_shift = STATUS_BAR_LIVE_ICON_SIZE +
         2 * STATUS_BAR_PADDING;
+  const double mana_bar_length = ship_get_mana(sb->shp) / SHIP_MAX_MANA *
+        STATUS_BAR_MANA_BAR_MAX_LENGTH;
   int i;
 
   al_draw_filled_rectangle(sb->start.x, sb->start.y,
@@ -130,6 +132,12 @@ void status_bar_draw(status_bar *sb) {
                           STATUS_BAR_LIVE_ICON_SIZE,
                           STATUS_BAR_LIVE_ICON_SIZE, 0);
   }
+
+  al_draw_filled_rectangle(sb->area.w - STATUS_BAR_PADDING - mana_bar_length,
+                           sb->start.y + STATUS_BAR_PADDING,
+                           sb->area.w - STATUS_BAR_PADDING,
+                           sb->start.y + STATUS_BAR_PADDING +
+                           STATUS_BAR_MANA_BAR_HIEGHT, color_blue());
 }
 
 void status_bar_destroy(status_bar *sb) {

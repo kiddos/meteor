@@ -148,7 +148,7 @@ bool ship_collide_with_meteor(ship *s, meteor *m) {
   }
 }
 
-bool ship_check_collision(ship *s, meteor_shower *ms) {
+bool ship_check_collision(ship *s, meteor_shower *ms, const size window_size) {
   meteor *iter = NULL;
   iter = ms->meteors;
   do {
@@ -158,14 +158,14 @@ bool ship_check_collision(ship *s, meteor_shower *ms) {
     iter = iter->next;
   } while (iter != NULL);
 
-  ship_check_bullet_hit(s, ms);
+  ship_check_bullet_hit(s, ms, window_size);
   return false;
 }
 
-bool ship_check_bullet_hit(ship *s, meteor_shower *ms) {
+bool ship_check_bullet_hit(ship *s, meteor_shower *ms, const size window_size) {
   bool hit = false;
   int i;
-  meteor *iter = NULL, *temp = NULL;
+  meteor *iter = NULL, *m = NULL;
   for (i = 0 ; i < ms->meteor_count ; i ++) {
     iter = ms->meteors;
     if (bullet_check_collision(s->bullets, iter)) {
@@ -184,10 +184,12 @@ bool ship_check_bullet_hit(ship *s, meteor_shower *ms) {
       if (bullet_check_collision(s->bullets, iter->next)) {
         regular_message("removing this meteor");
 
-        temp = iter->next->next;
+        m = meteor_init(window_size);
+        m->next = iter->next->next;
+
         meteor_destroy(iter->next);
 
-        iter->next = temp;
+        iter->next = m;
         ms->meteor_count --;
       }
     }

@@ -10,7 +10,7 @@ set(LIBRARIES -lm -lallegro -lallegro_primitives
 
 add_executable(${BUILD_TARGET} main.c game.c common.c
                ship.c bullet.c meteor.c message.c
-               statusbar.c timedisplay.c)
+               statusbar.c timedisplay.c score.c)
 
 target_link_libraries(${BUILD_TARGET} ${LIBRARIES})
 

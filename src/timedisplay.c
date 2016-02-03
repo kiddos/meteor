@@ -1,6 +1,6 @@
 #include "timedisplay.h"
 
-#define TIME_DISPLAY_TEXT_FORMAT "%02d:%02d"
+#define TIME_DISPLAY_TEXT_FORMAT "TIME:  %02d:%02d"
 
 time_display *time_display_init(ALLEGRO_FONT *font,
                                 ALLEGRO_COLOR text_color,
@@ -14,6 +14,11 @@ time_display *time_display_init(ALLEGRO_FONT *font,
     td->time_passed = 0;
     td->start = center;
     memset(td->text, '\0', 16);
+
+    sprintf(td->text, TIME_DISPLAY_TEXT_FORMAT,
+            ((int) td->time_passed) / 60,
+            ((int) td->time_passed) % 60);
+
     return td;
   } else {
     error_message("fail to create time display | null point of font object");
@@ -64,6 +69,15 @@ void time_display_set_center(time_display *td, point start) {
     td->start = start;
   } else {
     error_message("time display null pointer");
+  }
+}
+
+const double time_display_get_text_width(const time_display *td) {
+  if (td != NULL) {
+    return al_get_text_width(td->font, td->text);
+  } else {
+    error_message("time display null pointer");
+    return -1;
   }
 }
 

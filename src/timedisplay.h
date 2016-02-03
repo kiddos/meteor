@@ -19,6 +19,7 @@ void time_display_start(time_display *td);
 void time_display_stop(time_display *td);
 void time_display_update(time_display *td);
 void time_display_set_point(time_display *td, point start);
+const double time_display_get_text_width(const time_display *td);
 void time_display_draw(time_display *td);
 double time_display_get_time_passed(time_display *td);
 void time_display_destroy(time_display *td);

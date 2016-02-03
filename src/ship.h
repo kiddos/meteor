@@ -9,10 +9,22 @@
 extern const double SHIP_SIZE;
 extern const double SHIP_FORCE;
 extern const double SHIP_MAX_SPEED;
+extern const double SHIP_STARTING_LIVES;
+extern const double SHIP_STARTING_DAMAGE;
+extern const double SHIP_MAX_MANA;
 
 typedef enum {
   UP, DOWN, LEFT, RIGHT
 } ship_direction;
+
+typedef struct ship_attr_t {
+  uint8_t lives;
+  double mana;
+  uint32_t level;
+  double damage;
+  bool is_buffed;
+  bool is_immune;
+} ship_attr;
 
 typedef struct ship_t {
   ALLEGRO_BITMAP *bitmap;
@@ -22,13 +34,17 @@ typedef struct ship_t {
   velocity v;
   acceleration a;
   double speed, direction;
-  uint32_t level;
+  ship_attr attr;
 } ship;
 
 ship *ship_init(const point start);
 void ship_update(ship *s, const size window_size);
 void ship_move(ship *s, ship_direction d);
 void ship_stop(ship *s, ship_direction d);
+int32_t ship_get_lives(ship *s);
+int32_t ship_get_level(ship *s);
+double ship_get_mana(ship *s);
+void ship_increase_level(ship *s);
 void ship_shoot_bullet(ship *s);
 bool ship_collide_with_meteor(ship *s, meteor *m);
 bool ship_check_bullet_hit(ship *s, meteor_shower *ms, const size window_size);

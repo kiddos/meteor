@@ -89,3 +89,7 @@ ALLEGRO_COLOR color_gray() {
   return al_map_rgb(128, 128, 128);
 }
 
+ALLEGRO_COLOR color_blue() {
+  return al_map_rgb(80, 198, 245);
+}
+

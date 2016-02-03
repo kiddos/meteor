@@ -53,6 +53,7 @@ ALLEGRO_COLOR color_white();
 ALLEGRO_COLOR color_black();
 ALLEGRO_COLOR color_dark_gray();
 ALLEGRO_COLOR color_gray();
+ALLEGRO_COLOR color_blue();
 
 #endif /* end of include guard: COMMON_H */
 

@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* constants */
+const char * const FONT_PATH = "res/fonts/SquadaOne-Regular.ttf";
+
 point point_init(const double x, const double y) {
   point p;
   p.x = x;
@@ -72,5 +75,17 @@ double acceleration_compute_direction(acceleration a) {
 /* colors */
 ALLEGRO_COLOR color_white() {
   return al_map_rgb(250, 250, 250);
+}
+
+ALLEGRO_COLOR color_black() {
+  return al_map_rgb(0, 0, 0);
+}
+
+ALLEGRO_COLOR color_dark_gray() {
+  return al_map_rgb(66, 66, 66);
+}
+
+ALLEGRO_COLOR color_gray() {
+  return al_map_rgb(128, 128, 128);
 }
 

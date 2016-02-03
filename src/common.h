@@ -22,6 +22,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+extern const char * const FONT_PATH;
+
 typedef struct point_t {
   double x, y;
 } point;
@@ -48,6 +50,9 @@ double acceleration_compute_direction(acceleration v);
 
 /* colors */
 ALLEGRO_COLOR color_white();
+ALLEGRO_COLOR color_black();
+ALLEGRO_COLOR color_dark_gray();
+ALLEGRO_COLOR color_gray();
 
 #endif /* end of include guard: COMMON_H */
 

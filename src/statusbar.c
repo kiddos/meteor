@@ -94,8 +94,17 @@ void status_bar_reset(status_bar *sb) {
 }
 
 void status_bar_update(status_bar *sb, const size window_size) {
+  if (window_size.h - STATUS_BAR_HEIGHT != sb->start.y) {
+    sb->start.y = window_size.h - STATUS_BAR_HEIGHT;
+    time_display_set_point(sb->td, point_init(STATUS_BAR_PADDING,
+                                              sb->start.y + STATUS_BAR_PADDING));
+
+    score_set_point(sb->sco, point_init(time_display_get_text_width(sb->td) +
+                                        6 * STATUS_BAR_PADDING,
+                                        sb->start.y + STATUS_BAR_PADDING));
+  }
+
   sb->start.x = 0;
-  sb->start.y = window_size.h - STATUS_BAR_HEIGHT;
   sb->area.w = window_size.w;
   sb->area.h = STATUS_BAR_HEIGHT;
 

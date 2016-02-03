@@ -62,6 +62,33 @@ bool bullet_is_inside_screen(bullet *b, const size window_size) {
   return true;
 }
 
+bool bullet_hit_meteor(bullet *b, const meteor *m) {
+  const double dx = b->start.x - m->center.x;
+  const double dy = b->start.y - m->center.y;
+  const double dis = sqrt(dx * dx + dy * dy);
+  if (dis < meteor_get_size(m) / 2) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool bullet_check_collision(bullet *bullets, const meteor *m) {
+  bullet *iter = NULL;
+  if (bullets != NULL) {
+    iter = bullets;
+    do {
+      if (bullet_hit_meteor(iter, m)) {
+        return true;
+      }
+
+      iter = iter->next;
+    } while (iter != NULL);
+    return false;
+  }
+  return false;
+}
+
 void bullet_update(bullet *bullets, const size window_size) {
   bullet *iter = NULL, *temp = NULL;
   if (bullets != NULL) {

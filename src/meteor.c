@@ -231,8 +231,19 @@ meteor_shower *meteor_shower_init(const size window_size) {
 
 void meteor_shower_update(meteor_shower *ms, const size window_size) {
   meteor *iter = NULL, *temp = NULL, *m = NULL;
-  iter = ms->meteors;
+  if (ms->meteors != NULL)
+    if (ms->meteors->speed == 0 ||
+        !meteor_is_inside_screen(ms->meteors, window_size)) {
+      temp = ms->meteors->next;
+      free(ms->meteors);
 
+      ms->meteors = meteor_init(window_size);
+      ms->meteors->next = temp;
+
+      regular_message("first meteor out of screen");
+  }
+
+  iter = ms->meteors;
   do {
     if (iter->next != NULL) {
       m = iter->next;

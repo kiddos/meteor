@@ -235,7 +235,7 @@ void meteor_shower_update(meteor_shower *ms, const size window_size) {
     if (ms->meteors->speed == 0 ||
         !meteor_is_inside_screen(ms->meteors, window_size)) {
       temp = ms->meteors->next;
-      free(ms->meteors);
+      meteor_destroy(ms->meteors);
 
       ms->meteors = meteor_init(window_size);
       ms->meteors->next = temp;
@@ -249,7 +249,7 @@ void meteor_shower_update(meteor_shower *ms, const size window_size) {
       m = iter->next;
       if (m->speed == 0 || !meteor_is_inside_screen(m, window_size)) {
         temp = m->next;
-        free(m);
+        meteor_destroy(m);
         iter->next = meteor_init(window_size);
         iter->next->next = temp;
 

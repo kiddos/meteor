@@ -13,20 +13,23 @@ extern const uint32_t STATUS_BAR_FONT_SIZE;
 extern const double STATUS_BAR_LIVE_ICON_SIZE;
 extern const double STATUS_BAR_MANA_BAR_HIEGHT;
 extern const double STATUS_BAR_MANA_BAR_MAX_LENGTH;
+extern const char * const STATUS_BAR_LIVE_ICON_FILE_PATH;
 
 typedef struct status_bar_t {
   ALLEGRO_FONT *font;
+  ALLEGRO_BITMAP *live_icon;
   ALLEGRO_COLOR background_color;
   point start;
   size area;
   time_display *td;
   score *sco;
-  ship *s;
+  ship *shp;
 } status_bar;
 
-status_bar *status_bar_init(ship *s, const size window_size);
+status_bar *status_bar_init(ship *shp, const size window_size);
 void status_bar_start(status_bar *sb);
 void status_bar_reset(status_bar *sb);
+void status_bar_set_new_ship(status_bar *sb, ship *shp);
 void status_bar_update(status_bar *sb, const size window_size);
 void status_bar_draw(status_bar *sb);
 void status_bar_destroy(status_bar *sb);

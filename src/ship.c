@@ -157,7 +157,44 @@ bool ship_check_collision(ship *s, meteor_shower *ms) {
     }
     iter = iter->next;
   } while (iter != NULL);
+
+  ship_check_bullet_hit(s, ms);
   return false;
+}
+
+bool ship_check_bullet_hit(ship *s, meteor_shower *ms) {
+  bool hit = false;
+  int i;
+  meteor *iter = NULL, *temp = NULL;
+  for (i = 0 ; i < ms->meteor_count ; i ++) {
+    iter = ms->meteors;
+    if (bullet_check_collision(s->bullets, iter)) {
+      regular_message("removing first meteor");
+      ms->meteors = iter->next;
+      meteor_destroy(iter);
+      hit = true;
+    } else {
+      break;
+    }
+  }
+
+  iter = ms->meteors;
+  while (iter != NULL) {
+    if (iter->next != NULL) {
+      if (bullet_check_collision(s->bullets, iter->next)) {
+        regular_message("removing this meteor");
+
+        temp = iter->next->next;
+        meteor_destroy(iter->next);
+
+        iter->next = temp;
+        ms->meteor_count --;
+      }
+    }
+    if (iter != NULL)
+      iter = iter->next;
+  }
+  return hit;
 }
 
 void ship_draw(ship *s) {

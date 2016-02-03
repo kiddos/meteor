@@ -4,6 +4,7 @@
 #include "common.h"
 #include "ship.h"
 #include "meteor.h"
+#include "statusbar.h"
 
 // constants
 extern const double FPS;
@@ -14,7 +15,7 @@ typedef struct game_t {
     ALLEGRO_DISPLAY *display;
     ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT_QUEUE *event_queue;
-    int width, height;
+    size window_size;
     bool running;
   } core;
 
@@ -22,6 +23,10 @@ typedef struct game_t {
     ship *s;
     meteor_shower *ms;
   } object;
+
+  struct {
+    status_bar *sb;
+  } panel;
 } game;
 
 // game functions

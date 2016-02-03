@@ -10,6 +10,11 @@
 const double SHIP_SIZE = 60;
 const double SHIP_FORCE = 0.36;
 const double SHIP_MAX_SPEED = 3.6;
+const double SHIP_STARTING_LIVES = 3;
+const double SHIP_STARTING_DAMAGE = 1;
+const double SHIP_MAX_MANA = 100;
+const double SHIP_BULLET_MANA = 10;
+const double SHIP_MANA_GAIN = 0.1;
 
 ship *ship_init(const point start) {
   ALLEGRO_CONFIG *config = al_load_config_file(CONFIG_FILE_PATH);
@@ -35,9 +40,18 @@ ship *ship_init(const point start) {
       error_message("fail to load ship bitmap");
       return NULL;
     }
-    s->level = atoi(al_get_config_value(config,
-                                        CONFIG_SHIP_SECTION,
-                                        CONFIG_SHIP_LEVEL_KEY));
+
+    // ship attributes
+    s->attr.lives = SHIP_STARTING_LIVES;
+    s->attr.mana = SHIP_MAX_MANA;
+    s->attr.level = atoi(al_get_config_value(config,
+                                             CONFIG_SHIP_SECTION,
+                                             CONFIG_SHIP_LEVEL_KEY));
+    s->attr.damage = SHIP_STARTING_DAMAGE;
+    s->attr.is_buffed = false;
+    s->attr.is_immune = false;
+
+    al_destroy_config(config);
     return s;
   } else {
     error_message("fail to load ship config file");
@@ -82,6 +96,8 @@ void ship_update(ship *s, const size window_size) {
       s->bullet_count --;
     }
   }
+
+  ship_increase_mana(s, SHIP_MANA_GAIN);
 }
 
 void ship_move(ship *s, ship_direction d) {
@@ -126,13 +142,64 @@ void ship_stop(ship *s, ship_direction d) {
   }
 }
 
-void ship_shoot_bullet(ship *s) {
-  const point start = point_init(s->center.x, s->center.y);
-  if (s->bullets == NULL) {
-    s->bullets = bullet_init(start, s->direction);
+int32_t ship_get_lives(ship *s) {
+  if (s != NULL) {
+    return s->attr.lives;
   } else {
-    bullet_add(s->bullets, start, s->direction);
-    s->bullet_count = bullet_get_count(s->bullets);
+    error_message("ship object null pointer");
+    return -1;
+  }
+}
+
+int32_t ship_get_level(ship *s) {
+  if (s != NULL) {
+    return s->attr.level;
+  } else {
+    error_message("ship object null pointer");
+    return -1;
+  }
+}
+
+double ship_get_mana(ship *s) {
+  if (s != NULL) {
+    return s->attr.mana;
+  } else {
+    error_message("ship object null pointer");
+    return -1.0;
+  }
+}
+
+void ship_increase_level(ship *s) {
+  if (s != NULL) {
+    s->attr.level ++;
+  } else {
+    error_message("ship object null pointer");
+  }
+}
+
+void ship_increase_mana(ship *s, const double mana) {
+  if (s != NULL) {
+    if (s->attr.mana + mana <= SHIP_MAX_MANA)
+      s->attr.mana += mana;
+  } else {
+    error_message("ship object null pointer");
+  }
+}
+
+void ship_shoot_bullet(ship *s) {
+  if (s != NULL) {
+    const point start = point_init(s->center.x, s->center.y);
+    if (s->bullets == NULL) {
+      s->bullets = bullet_init(start, s->direction);
+    } else {
+      bullet_add(s->bullets, start, s->direction);
+      s->bullet_count = bullet_get_count(s->bullets);
+    }
+
+    // shooting bullet cost mana
+    s->attr.mana -= SHIP_BULLET_MANA;
+  } else {
+    error_message("ship object null pointer");
   }
 }
 

@@ -12,6 +12,8 @@ extern const double SHIP_MAX_SPEED;
 extern const double SHIP_STARTING_LIVES;
 extern const double SHIP_STARTING_DAMAGE;
 extern const double SHIP_MAX_MANA;
+extern const double SHIP_BULLET_MANA;
+extern const double SHIP_MANA_GAIN;
 
 typedef enum {
   UP, DOWN, LEFT, RIGHT
@@ -45,6 +47,7 @@ int32_t ship_get_lives(ship *s);
 int32_t ship_get_level(ship *s);
 double ship_get_mana(ship *s);
 void ship_increase_level(ship *s);
+void ship_increase_mana(ship *s, const double mana);
 void ship_shoot_bullet(ship *s);
 bool ship_collide_with_meteor(ship *s, meteor *m);
 bool ship_check_bullet_hit(ship *s, meteor_shower *ms, const size window_size);

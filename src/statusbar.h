@@ -4,11 +4,15 @@
 #include "common.h"
 #include "timedisplay.h"
 #include "ship.h"
+#include "score.h"
 
 /* constants */
 extern const double STATUS_BAR_HEIGHT;
 extern const double STATUS_BAR_PADDING;
 extern const uint32_t STATUS_BAR_FONT_SIZE;
+extern const double STATUS_BAR_LIVE_ICON_SIZE;
+extern const double STATUS_BAR_MANA_BAR_HIEGHT;
+extern const double STATUS_BAR_MANA_BAR_MAX_LENGTH;
 
 typedef struct status_bar_t {
   ALLEGRO_FONT *font;
@@ -16,6 +20,7 @@ typedef struct status_bar_t {
   point start;
   size area;
   time_display *td;
+  score *sco;
   ship *s;
 } status_bar;
 

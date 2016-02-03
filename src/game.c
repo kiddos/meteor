@@ -164,7 +164,9 @@ void game_main_loop(game *g) {
           redraw = true;
 
           // update objects
-          ship_update(g->object.s, g->core.window_size);
+          ship_update(g->object.s, size_init(g->core.window_size.w,
+                                             g->core.window_size.h -
+                                             STATUS_BAR_HEIGHT));
           meteor_shower_update(g->object.ms, g->core.window_size);
 
           // collision detection

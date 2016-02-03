@@ -31,8 +31,8 @@ void ship_move(ship *s, ship_direction d);
 void ship_stop(ship *s, ship_direction d);
 void ship_shoot_bullet(ship *s);
 bool ship_collide_with_meteor(ship *s, meteor *m);
-bool ship_check_bullet_hit(ship *s, meteor_shower *ms);
-bool ship_check_collision(ship *s, meteor_shower *ms);
+bool ship_check_bullet_hit(ship *s, meteor_shower *ms, const size window_size);
+bool ship_check_collision(ship *s, meteor_shower *ms, const size window_size);
 void ship_draw(ship *s);
 void ship_destroy(ship *s);
 

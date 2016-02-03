@@ -28,7 +28,7 @@ score *score_init(ALLEGRO_FONT *font,
   }
 }
 
-void score_set_new_point(score *s, const point start) {
+void score_set_point(score *s, const point start) {
   if (s != NULL) {
     s->start = start;
   }

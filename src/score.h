@@ -30,7 +30,7 @@ typedef struct score_t {
 score *score_init(ALLEGRO_FONT *font,
                   const ALLEGRO_COLOR text_color,
                   const point start);
-void score_set_new_point(score *s, const point start);
+void score_set_point(score *s, const point start);
 void score_add_score_type(score *s, const score_type type);
 void score_reset(score *s);
 void score_update(score *s);

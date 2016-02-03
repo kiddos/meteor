@@ -64,7 +64,7 @@ void time_display_update(time_display *td) {
   }
 }
 
-void time_display_set_center(time_display *td, point start) {
+void time_display_set_point(time_display *td, point start) {
   if (td != NULL) {
     td->start = start;
   } else {

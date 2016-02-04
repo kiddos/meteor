@@ -42,11 +42,9 @@ double velocity_compute_direction(velocity v) {
     }
   } else {
     double value = atan(v.dx / (-1.0 * v.dy));
-    if (v.dx > 0 && v.dy > 0) {
+    if (v.dy > 0) {
       return M_PI + value;
-    } else if (v.dx < 0 && v.dy > 0) {
-      return M_PI + value;
-    } else if (v.dx < 0 && v.dy < 0) {
+    } else if (v.dy < 0) {
       return 2 * M_PI + value;
     }
     return value;

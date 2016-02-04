@@ -5,6 +5,7 @@
 #include "timedisplay.h"
 #include "ship.h"
 #include "score.h"
+#include "meteor.h"
 
 /* constants */
 extern const double STATUS_BAR_HEIGHT;
@@ -23,13 +24,18 @@ typedef struct status_bar_t {
   size area;
   time_display *td;
   score *sco;
-  ship *shp;
+
+  struct {
+    ship *s;
+    meteor_shower *ms;
+  } object;
 } status_bar;
 
-status_bar *status_bar_init(ship *shp, const size window_size);
+status_bar *status_bar_init(ship *s, meteor_shower *ms,
+                            const size window_size);
 void status_bar_start(status_bar *sb);
 void status_bar_reset(status_bar *sb);
-void status_bar_set_new_ship(status_bar *sb, ship *shp);
+void status_bar_set_new_ship(status_bar *sb, ship *s);
 void status_bar_update(status_bar *sb, const size window_size);
 void status_bar_draw(status_bar *sb);
 void status_bar_destroy(status_bar *sb);

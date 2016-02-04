@@ -24,12 +24,16 @@ ship *ship_init(const point start) {
     s->center.y = start.y;
     s->v.dx = 0;
     s->v.dy = 0;
-    s->a.ax = 0;
-    s->a.ay = 0;
+    s->a.ax = SHIP_FORCE;
+    s->a.ay = SHIP_FORCE;
     s->direction = velocity_compute_direction(s->v);
     s->speed = velocity_compute_speed(s->v);
     s->bullets = NULL;
     s->bullet_count = 0;
+    s->m.movement[UP] = false;
+    s->m.movement[DOWN] = false;
+    s->m.movement[LEFT] = false;
+    s->m.movement[RIGHT] = false;
 
     const char *bitmap_path = al_get_config_value(config,
                                                   CONFIG_SHIP_SECTION,
@@ -61,14 +65,26 @@ ship *ship_init(const point start) {
 
 void ship_update(ship *s, const size window_size) {
   const double ship_diag = SHIP_SIZE * sqrt(2) / 2;
+  double new_dx = s->v.dx, new_dy = s->v.dy;
 
-  if (s->v.dx + s->a.ax < SHIP_MAX_SPEED &&
-      s->v.dx + s->a.ax > -SHIP_MAX_SPEED) {
-    s->v.dx += s->a.ax;
+  if (s->m.movement[LEFT])
+    new_dx -= s->a.ax;
+  if (s->m.movement[RIGHT])
+    new_dx += s->a.ax;
+
+  if (new_dx < SHIP_MAX_SPEED &&
+      new_dx > -SHIP_MAX_SPEED) {
+    s->v.dx = new_dx;
   }
-  if (s->v.dy + s->a.ay < SHIP_MAX_SPEED &&
-      s->v.dy + s->a.ay > -SHIP_MAX_SPEED) {
-    s->v.dy += s->a.ay;
+
+  if (s->m.movement[UP])
+    new_dy -= s->a.ay;
+  if (s->m.movement[DOWN])
+    new_dy += s->a.ay;
+
+  if (new_dy < SHIP_MAX_SPEED &&
+      new_dy > -SHIP_MAX_SPEED) {
+    s->v.dy = new_dy;
   }
 
   if (s->center.x - ship_diag + s->v.dx > 0 &&
@@ -104,16 +120,16 @@ void ship_update(ship *s, const size window_size) {
 void ship_move(ship *s, ship_direction d) {
   switch (d) {
     case UP:
-      s->a.ay = -SHIP_FORCE;
+      s->m.movement[UP] = true;
       break;
     case DOWN:
-      s->a.ay = SHIP_FORCE;
+      s->m.movement[DOWN] = true;
       break;
     case LEFT:
-      s->a.ax = -SHIP_FORCE;
+      s->m.movement[LEFT] = true;
       break;
     case RIGHT:
-      s->a.ax = SHIP_FORCE;
+      s->m.movement[RIGHT] = true;
       break;
   }
 }
@@ -121,24 +137,16 @@ void ship_move(ship *s, ship_direction d) {
 void ship_stop(ship *s, ship_direction d) {
   switch (d) {
     case UP:
-      if (s->v.dy < 0) {
-        s->a.ay = 0;
-      }
+      s->m.movement[UP] = false;
       break;
     case DOWN:
-      if (s->v.dy > 0) {
-        s->a.ay = 0;
-      }
+      s->m.movement[DOWN] = false;
       break;
     case LEFT:
-      if (s->v.dx > 0) {
-        s->a.ax = 0;
-      }
+      s->m.movement[LEFT] = false;
       break;
     case RIGHT:
-      if (s->v.dx > 0) {
-        s->a.ax = 0;
-      }
+      s->m.movement[RIGHT] = false;
       break;
   }
 }

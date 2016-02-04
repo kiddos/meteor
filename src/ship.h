@@ -43,16 +43,20 @@ ship *ship_init(const point start);
 void ship_update(ship *s, const size window_size);
 void ship_move(ship *s, ship_direction d);
 void ship_stop(ship *s, ship_direction d);
-int32_t ship_get_lives(ship *s);
-int32_t ship_get_level(ship *s);
-double ship_get_mana(ship *s);
+int32_t ship_get_lives(const ship *s);
+int32_t ship_get_level(const ship *s);
+double ship_get_mana(const ship *s);
 void ship_increase_level(ship *s);
 void ship_increase_mana(ship *s, const double mana);
 void ship_shoot_bullet(ship *s);
-bool ship_collide_with_meteor(ship *s, meteor *m);
-bool ship_check_bullet_hit(ship *s, meteor_shower *ms, const size window_size);
-bool ship_check_collision(ship *s, meteor_shower *ms, const size window_size);
-void ship_draw(ship *s);
+bool ship_collide_with_meteor(const ship *s, const meteor *m);
+bool ship_check_bullet_hit(const ship *s,
+                           meteor_shower *ms,
+                           const size window_size);
+bool ship_check_collision(const ship *s,
+                          meteor_shower *ms,
+                          const size window_size);
+void ship_draw(const ship *s);
 void ship_destroy(ship *s);
 
 #endif /* end of include guard: SHIP_H */

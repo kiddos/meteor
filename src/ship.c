@@ -143,7 +143,7 @@ void ship_stop(ship *s, ship_direction d) {
   }
 }
 
-int32_t ship_get_lives(ship *s) {
+int32_t ship_get_lives(const ship *s) {
   if (s != NULL) {
     return s->attr.lives;
   } else {
@@ -152,7 +152,7 @@ int32_t ship_get_lives(ship *s) {
   }
 }
 
-int32_t ship_get_level(ship *s) {
+int32_t ship_get_level(const ship *s) {
   if (s != NULL) {
     return s->attr.level;
   } else {
@@ -161,7 +161,7 @@ int32_t ship_get_level(ship *s) {
   }
 }
 
-double ship_get_mana(ship *s) {
+double ship_get_mana(const ship *s) {
   if (s != NULL) {
     return s->attr.mana;
   } else {
@@ -205,7 +205,7 @@ void ship_shoot_bullet(ship *s) {
   }
 }
 
-bool ship_collide_with_meteor(ship *s, meteor *m) {
+bool ship_collide_with_meteor(const ship *s, const meteor *m) {
   const double dx = s->center.x - m->center.x;
   const double dy = s->center.y - m->center.y;
   const double dis = sqrt(dx * dx + dy * dy);
@@ -217,7 +217,9 @@ bool ship_collide_with_meteor(ship *s, meteor *m) {
   }
 }
 
-bool ship_check_collision(ship *s, meteor_shower *ms, const size window_size) {
+bool ship_check_collision(const ship *s,
+                          meteor_shower *ms,
+                          const size window_size) {
   bool hit = false;
   meteor *iter = NULL;
   iter = ms->meteors;
@@ -232,7 +234,9 @@ bool ship_check_collision(ship *s, meteor_shower *ms, const size window_size) {
   return hit;
 }
 
-bool ship_check_bullet_hit(ship *s, meteor_shower *ms, const size window_size) {
+bool ship_check_bullet_hit(const ship *s,
+                           meteor_shower *ms,
+                           const size window_size) {
   bool hit = false;
   meteor *iter = ms->meteors;
   do {
@@ -250,7 +254,7 @@ bool ship_check_bullet_hit(ship *s, meteor_shower *ms, const size window_size) {
   return hit;
 }
 
-void ship_draw(ship *s) {
+void ship_draw(const ship *s) {
   bullet_draw(s->bullets);
 
   al_draw_scaled_rotated_bitmap(s->bitmap,

@@ -108,7 +108,7 @@ void status_bar_update(status_bar *sb, const size window_size) {
   sb->area.w = window_size.w;
   sb->area.h = STATUS_BAR_HEIGHT;
 
-  time_display_update(sb->td);
+  score_add_score_type(sb->sco, SCORE_TIME);
   score_update(sb->sco);
 }
 

@@ -87,7 +87,7 @@ void time_display_draw(time_display *td) {
                ALLEGRO_ALIGN_LEFT, td->text);
 }
 
-double time_display_get_time_passed(time_display *td) {
+const double time_display_get_time_passed(const time_display *td) {
   return td->time_passed;
 }
 

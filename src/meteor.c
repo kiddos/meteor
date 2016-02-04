@@ -12,6 +12,9 @@ const double METEOR_SMALL_SIZE = 30;
 const double METEOR_MEDIUM_SIZE = 60;
 const double METEOR_LARGE_SIZE = 120;
 const double METEOR_ROTATION_SPEED = M_PI / 30;
+const double METEOR_SMALL_HIT_POINT = 10;
+const double METEOR_MEDIUM_HIT_POINT = 20;
+const double METEOR_LARGE_HIT_POINT = 30;
 
 static double random_range(const double min, const double max) {
   const double range = max - min;
@@ -47,12 +50,15 @@ meteor *meteor_init(const size window_size) {
   switch (ran) {
     case 0:
       m->size = METEOR_SMALL;
+      m->hit_point = METEOR_SMALL_HIT_POINT;
       break;
     case 1:
       m->size = METEOR_MEDIUM;
+      m->hit_point = METEOR_MEDIUM_HIT_POINT;
       break;
     case 2:
       m->size = METEOR_LARGE;
+      m->hit_point = METEOR_LARGE_HIT_POINT;
       break;
   }
 
@@ -120,7 +126,7 @@ meteor *meteor_init(const size window_size) {
   }
 
   m->v = velocity_init(m->speed, m->direction);
-  regular_message("meteor created");
+  /*regular_message("meteor created");*/
   /*printf("dx = %lf, dy = %lf speed = %lf, direction = %lf id=%p\n",*/
       /*m->v.dx, m->v.dy, m->speed, m->direction, m);*/
   return m;
@@ -138,6 +144,14 @@ bool meteor_is_inside_screen(const meteor *m, const size window_size) {
   return true;
 }
 
+bool meteor_is_broken_down(const meteor *m) {
+  if (m->hit_point <= 0) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 double meteor_get_size(const meteor *m) {
   double ms = 0;
   switch (m->size) {
@@ -152,6 +166,19 @@ double meteor_get_size(const meteor *m) {
       break;
   }
   return ms;
+}
+
+void meteor_take_damage(meteor *m, const double damage) {
+  if (m != NULL) {
+    m->hit_point -= damage;
+    regular_message("============ meteor take damage ============");
+
+    if (m->hit_point >= -1e-6 && m->hit_point <= 1e-6) {
+      m->hit_point = 0;
+    }
+  } else {
+    error_message("meteor object null pointer");
+  }
 }
 
 void meteor_update(meteor *m, const size window_size) {
@@ -193,7 +220,7 @@ void meteor_destroy(meteor *m) {
       al_destroy_bitmap(m->bitmap);
     }
     free(m);
-    regular_message("meteor memory freed");
+    /*regular_message("meteor memory freed");*/
   }
 }
 
@@ -233,27 +260,30 @@ void meteor_shower_update(meteor_shower *ms, const size window_size) {
   meteor *iter = NULL, *temp = NULL, *m = NULL;
   if (ms->meteors != NULL)
     if (ms->meteors->speed == 0 ||
-        !meteor_is_inside_screen(ms->meteors, window_size)) {
+        !meteor_is_inside_screen(ms->meteors, window_size) ||
+        meteor_is_broken_down(ms->meteors)) {
       temp = ms->meteors->next;
       meteor_destroy(ms->meteors);
 
       ms->meteors = meteor_init(window_size);
       ms->meteors->next = temp;
 
-      regular_message("first meteor out of screen");
+      regular_message("first meteor out of screen or broken | creating a new one");
   }
 
   iter = ms->meteors;
   do {
     if (iter->next != NULL) {
       m = iter->next;
-      if (m->speed == 0 || !meteor_is_inside_screen(m, window_size)) {
+      if (m->speed == 0 ||
+          !meteor_is_inside_screen(m, window_size) ||
+          meteor_is_broken_down(m)) {
         temp = m->next;
         meteor_destroy(m);
         iter->next = meteor_init(window_size);
         iter->next->next = temp;
 
-        regular_message("meteor out of screen and stopping | creating a new one");
+        regular_message("meteor out of screen or broken | creating a new one");
       }
     }
     meteor_update(iter, window_size);

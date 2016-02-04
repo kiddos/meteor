@@ -33,9 +33,14 @@ typedef struct meteor_t {
   struct meteor_t *next;
 } meteor;
 
+typedef struct meteor_count_t {
+  uint32_t small, medium, large;
+} meteor_count;
+
 typedef struct meteor_shower_t {
   meteor *meteors;
-  size_t meteor_count;
+  meteor_count live;
+  meteor_count destroyed;
 } meteor_shower;
 
 meteor *meteor_init(const size window_size);
@@ -49,6 +54,8 @@ void meteor_destroy(meteor *m);
 
 meteor_shower *meteor_shower_init(const size window_size);
 void meteor_shower_add_meteor(meteor_shower *ms, const size window_size);
+uint32_t meteor_shower_get_live_count(const meteor_shower *ms);
+meteor_count meteor_shower_get_destroy_count(meteor_shower *ms);
 void meteor_shower_update(meteor_shower *ms, const size window_size);
 void meteor_shower_draw(const meteor_shower *ms);
 void meteor_shower_destroy(meteor_shower *ms);

@@ -14,9 +14,13 @@ extern const double SHIP_STARTING_DAMAGE;
 extern const double SHIP_MAX_MANA;
 extern const double SHIP_BULLET_MANA;
 extern const double SHIP_MANA_GAIN;
+extern const double SHIP_IMMUNE_DURATION;
 
 typedef enum {
-  UP, DOWN, LEFT, RIGHT
+  UP=0,
+  DOWN=1,
+  LEFT=2,
+  RIGHT=3
 } ship_direction;
 
 typedef struct ship_movement_t {
@@ -24,12 +28,13 @@ typedef struct ship_movement_t {
 } ship_movement;
 
 typedef struct ship_attr_t {
-  uint8_t lives;
+  int8_t lives;
   double mana;
   uint32_t level;
   double damage;
   bool is_buffed;
   bool is_immune;
+  double time_stamp;
 } ship_attr;
 
 typedef struct ship_t {
@@ -46,14 +51,16 @@ typedef struct ship_t {
 
 ship *ship_init(const point start);
 void ship_update(ship *s, const size window_size);
-void ship_move(ship *s, ship_direction d);
-void ship_stop(ship *s, ship_direction d);
+void ship_move(ship *s, const ship_direction d);
+void ship_stop(ship *s, const ship_direction d);
 int32_t ship_get_lives(const ship *s);
 int32_t ship_get_level(const ship *s);
 double ship_get_mana(const ship *s);
 void ship_increase_level(ship *s);
 void ship_increase_mana(ship *s, const double mana);
 void ship_shoot_bullet(ship *s);
+void ship_take_damage(ship *s);
+bool ship_game_over(const ship *s);
 bool ship_collide_with_meteor(const ship *s, const meteor *m);
 bool ship_check_bullet_hit(const ship *s,
                            meteor_shower *ms,

@@ -235,7 +235,20 @@ meteor_shower *meteor_shower_init(const size window_size) {
     for (i = 0 ; i < METEOR_MIN_COUNT - 1; i ++) {
       iter->next = meteor_init(window_size);
 
+      switch (iter->next->size) {
+        case METEOR_SMALL:
+          ms->live.small ++;
+          break;
+        case METEOR_MEDIUM:
+          ms->live.medium ++;
+          break;
+        case METEOR_LARGE:
+          ms->live.large ++;
+          break;
+      }
+
       if (iter->next == NULL) {
+        error_message("fail to create meteor shower");
         iter = m;
         do {
           temp = iter->next;
@@ -249,26 +262,91 @@ meteor_shower *meteor_shower_init(const size window_size) {
     }
 
     ms->meteors = m;
-    ms->meteor_count = METEOR_MIN_COUNT;
+    ms->destroyed.small = 0;
+    ms->destroyed.medium = 0;
+    ms->destroyed.large = 0;
+
     return ms;
   } else {
     return NULL;
   }
 }
 
+void meteor_shower_add_meteor(meteor_shower *ms, const size window_size) {
+  meteor *iter = NULL;
+
+  if (ms != NULL) {
+    if (ms->meteors != NULL &&
+        meteor_shower_get_live_count(ms) <= METEOR_MAX_COUNT) {
+      iter = ms->meteors;
+      while (iter->next != NULL) {
+        iter = iter->next;
+      }
+
+      iter->next = meteor_init(window_size);
+
+      switch (iter->next->size) {
+        case METEOR_SMALL:
+          ms->live.small ++;
+          break;
+        case METEOR_MEDIUM:
+          ms->live.medium ++;
+          break;
+        case METEOR_LARGE:
+          ms->live.large ++;
+          break;
+      }
+    }
+  }
+}
+
+uint32_t meteor_shower_get_live_count(const meteor_shower *ms) {
+  uint32_t count = 0;
+  count += ms->live.small;
+  count += ms->live.medium;
+  count += ms->live.large;
+  return count;
+}
+
+meteor_count meteor_shower_get_destroy_count(meteor_shower *ms) {
+  meteor_count count = ms->destroyed;
+  ms->destroyed.small = 0;
+  ms->destroyed.medium = 0;
+  ms->destroyed.large = 0;
+  return count;
+}
+
 void meteor_shower_update(meteor_shower *ms, const size window_size) {
   meteor *iter = NULL, *temp = NULL, *m = NULL;
-  if (ms->meteors != NULL)
-    if (ms->meteors->speed == 0 ||
-        !meteor_is_inside_screen(ms->meteors, window_size) ||
-        meteor_is_broken_down(ms->meteors)) {
-      temp = ms->meteors->next;
-      meteor_destroy(ms->meteors);
+  if (ms->meteors->speed == 0 ||
+      !meteor_is_inside_screen(ms->meteors, window_size)) {
+    temp = ms->meteors->next;
+    meteor_destroy(ms->meteors);
 
-      ms->meteors = meteor_init(window_size);
-      ms->meteors->next = temp;
+    ms->meteors = meteor_init(window_size);
+    ms->meteors->next = temp;
 
-      regular_message("first meteor out of screen or broken | creating a new one");
+    regular_message("first meteor out of screen or broken | creating a new one");
+  } else if (meteor_is_broken_down(ms->meteors)) {
+    switch (ms->meteors->size) {
+      case METEOR_SMALL:
+        ms->destroyed.small ++;
+        break;
+      case METEOR_MEDIUM:
+        ms->destroyed.medium ++;
+        break;
+      case METEOR_LARGE:
+        ms->destroyed.large ++;
+        break;
+    }
+
+    temp = ms->meteors->next;
+    meteor_destroy(ms->meteors);
+
+    ms->meteors = meteor_init(window_size);
+    ms->meteors->next = temp;
+
+    regular_message("first meteor broken | creating a new one");
   }
 
   iter = ms->meteors;
@@ -276,14 +354,32 @@ void meteor_shower_update(meteor_shower *ms, const size window_size) {
     if (iter->next != NULL) {
       m = iter->next;
       if (m->speed == 0 ||
-          !meteor_is_inside_screen(m, window_size) ||
-          meteor_is_broken_down(m)) {
+          !meteor_is_inside_screen(m, window_size)) {
         temp = m->next;
         meteor_destroy(m);
         iter->next = meteor_init(window_size);
         iter->next->next = temp;
 
-        regular_message("meteor out of screen or broken | creating a new one");
+        regular_message("meteor out of screen | creating a new one");
+      } else if (meteor_is_broken_down(m)) {
+        switch (ms->meteors->size) {
+          case METEOR_SMALL:
+            ms->destroyed.small ++;
+            break;
+          case METEOR_MEDIUM:
+            ms->destroyed.medium ++;
+            break;
+          case METEOR_LARGE:
+            ms->destroyed.large ++;
+            break;
+        }
+
+        temp = m->next;
+        meteor_destroy(m);
+        iter->next = meteor_init(window_size);
+        iter->next->next = temp;
+
+        regular_message("meteor broken | creating a new one");
       }
     }
     meteor_update(iter, window_size);

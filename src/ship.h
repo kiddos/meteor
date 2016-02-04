@@ -19,6 +19,10 @@ typedef enum {
   UP, DOWN, LEFT, RIGHT
 } ship_direction;
 
+typedef struct ship_movement_t {
+  bool movement[4];
+} ship_movement;
+
 typedef struct ship_attr_t {
   uint8_t lives;
   double mana;
@@ -37,6 +41,7 @@ typedef struct ship_t {
   acceleration a;
   double speed, direction;
   ship_attr attr;
+  ship_movement m;
 } ship;
 
 ship *ship_init(const point start);

@@ -8,9 +8,10 @@ const double STATUS_BAR_MANA_BAR_HIEGHT = 15;
 const double STATUS_BAR_MANA_BAR_MAX_LENGTH = 110;
 const char * const STATUS_BAR_LIVE_ICON_FILE_PATH = "res/images/lives.png";
 
-status_bar *status_bar_init(ship *shp, const size window_size) {
+status_bar *status_bar_init(ship *s, meteor_shower *ms,
+                            const size window_size) {
   ALLEGRO_FONT *display_font = NULL;
-  if (shp != NULL) {
+  if (s != NULL) {
     status_bar *sb = (status_bar *) malloc(sizeof(status_bar));
     sb->font = al_load_font(FONT_PATH,
                             STATUS_BAR_FONT_SIZE,
@@ -68,7 +69,8 @@ status_bar *status_bar_init(ship *shp, const size window_size) {
                                     6 * STATUS_BAR_PADDING,
                                     sb->start.y + STATUS_BAR_PADDING));
 
-    sb->shp = shp;
+    sb->object.s = s;
+    sb->object.ms = ms;
     return sb;
   } else {
     error_message("fail to create status bar | ship null pointer");
@@ -108,8 +110,25 @@ void status_bar_update(status_bar *sb, const size window_size) {
   sb->area.w = window_size.w;
   sb->area.h = STATUS_BAR_HEIGHT;
 
-  score_add_score_type(sb->sco, SCORE_TIME);
+  // add score
+  score_set_time_score(sb->sco, time_display_get_time_passed(sb->td));
+  meteor_count count = meteor_shower_get_destroy_count(sb->object.ms);
+  uint32_t i;
+  for (i = 0 ; i < count.small ; i ++) {
+    score_add_score_type(sb->sco, SCORE_METEOR_SMALL);
+    regular_message("******** score small added *******");
+  }
+  for (i = 0 ; i < count.medium ; i ++) {
+    score_add_score_type(sb->sco, SCORE_METEOR_MEDIUM);
+    regular_message("******** score medium added *******");
+  }
+  for (i = 0 ; i < count.large ; i ++) {
+    score_add_score_type(sb->sco, SCORE_METEOR_LARGE);
+    regular_message("******** score large added *******");
+  }
+
   score_update(sb->sco);
+  time_display_update(sb->td);
 }
 
 void status_bar_draw(status_bar *sb) {
@@ -121,7 +140,7 @@ void status_bar_draw(status_bar *sb) {
         STATUS_BAR_LIVE_ICON_SIZE - STATUS_BAR_PADDING;
   const double live_icon_shift = STATUS_BAR_LIVE_ICON_SIZE +
         2 * STATUS_BAR_PADDING;
-  const double mana_bar_length = ship_get_mana(sb->shp) / SHIP_MAX_MANA *
+  const double mana_bar_length = ship_get_mana(sb->object.s) / SHIP_MAX_MANA *
         STATUS_BAR_MANA_BAR_MAX_LENGTH;
   int i;
 
@@ -133,7 +152,7 @@ void status_bar_draw(status_bar *sb) {
   time_display_draw(sb->td);
   score_draw(sb->sco);
 
-  for (i = 0 ; i < ship_get_lives(sb->shp) ; i ++) {
+  for (i = 0 ; i < ship_get_lives(sb->object.s) ; i ++) {
     al_draw_scaled_bitmap(sb->live_icon, 0, 0,
                           live_icon_width, live_icon_height,
                           live_icon_start_x - i * (live_icon_shift),

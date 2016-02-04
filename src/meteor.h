@@ -12,6 +12,9 @@ extern const double METEOR_SMALL_SIZE;
 extern const double METEOR_MEDIUM_SIZE;
 extern const double METEOR_LARGE_SIZE;
 extern const double METEOR_ROTATION_SPEED;
+extern const double METEOR_SMALL_HIT_POINT;
+extern const double METEOR_MEDIUM_HIT_POINT;
+extern const double METEOR_LARGE_HIT_POINT;
 
 typedef enum {
   METEOR_SMALL,
@@ -26,6 +29,7 @@ typedef struct meteor_t {
   double speed, direction;
   double angle, w;
   meteor_size size;
+  double hit_point;
   struct meteor_t *next;
 } meteor;
 
@@ -36,7 +40,9 @@ typedef struct meteor_shower_t {
 
 meteor *meteor_init(const size window_size);
 bool meteor_is_inside_screen(const meteor *m, const size window_size);
+bool meteor_is_broken_down(const meteor *m);
 double meteor_get_size(const meteor *m);
+void meteor_take_damage(meteor *m, const double damage);
 void meteor_update(meteor *m, const size window_size);
 void meteor_draw(meteor *m);
 void meteor_destroy(meteor *m);

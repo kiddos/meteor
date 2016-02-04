@@ -175,7 +175,7 @@ void game_main_loop(game *g) {
           if (ship_check_collision(g->object.s, g->object.ms,
                                    g->core.window_size)) {
             regular_message("ship collide with meteor !!!");
-            // TODO ship lives should decrease
+            ship_take_damage(g->object.s);
           }
 
           // update panel

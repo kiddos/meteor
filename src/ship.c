@@ -11,10 +11,10 @@ const double SHIP_SIZE = 60;
 const double SHIP_FORCE = 0.36;
 const double SHIP_MAX_SPEED = 3.6;
 const double SHIP_STARTING_LIVES = 3;
-const double SHIP_STARTING_DAMAGE = 1;
+const double SHIP_STARTING_DAMAGE = 10;
 const double SHIP_MAX_MANA = 100;
 const double SHIP_BULLET_MANA = 10;
-const double SHIP_MANA_GAIN = 0.1;
+const double SHIP_MANA_GAIN = 1;
 
 ship *ship_init(const point start) {
   ALLEGRO_CONFIG *config = al_load_config_file(CONFIG_FILE_PATH);
@@ -88,7 +88,8 @@ void ship_update(ship *s, const size window_size) {
     s->bullet_count = bullet_get_count(s->bullets);
 
     bullet *temp = NULL;
-    if (!bullet_is_inside_screen(s->bullets, window_size)) {
+    if (!bullet_is_inside_screen(s->bullets, window_size) ||
+        bullet_is_used(s->bullets)) {
       regular_message("this bullet not inside screen, cleaning up");
       temp = s->bullets->next;
       free(s->bullets);
@@ -190,9 +191,9 @@ void ship_shoot_bullet(ship *s) {
   if (s != NULL) {
     const point start = point_init(s->center.x, s->center.y);
     if (s->bullets == NULL) {
-      s->bullets = bullet_init(start, s->direction);
+      s->bullets = bullet_init(start, s->direction, s->attr.damage);
     } else {
-      bullet_add(s->bullets, start, s->direction);
+      bullet_add(s->bullets, start, s->direction, s->attr.damage);
       s->bullet_count = bullet_get_count(s->bullets);
     }
 
@@ -217,53 +218,35 @@ bool ship_collide_with_meteor(ship *s, meteor *m) {
 }
 
 bool ship_check_collision(ship *s, meteor_shower *ms, const size window_size) {
+  bool hit = false;
   meteor *iter = NULL;
   iter = ms->meteors;
   do {
     if (ship_collide_with_meteor(s, iter)) {
-      return true;
+      hit = true;
     }
     iter = iter->next;
   } while (iter != NULL);
 
   ship_check_bullet_hit(s, ms, window_size);
-  return false;
+  return hit;
 }
 
 bool ship_check_bullet_hit(ship *s, meteor_shower *ms, const size window_size) {
   bool hit = false;
-  int i;
-  meteor *iter = NULL, *m = NULL;
-  for (i = 0 ; i < ms->meteor_count ; i ++) {
-    iter = ms->meteors;
-    if (bullet_check_collision(s->bullets, iter)) {
-      regular_message("removing first meteor");
-      ms->meteors = iter->next;
-      meteor_destroy(iter);
-      hit = true;
-    } else {
-      break;
-    }
-  }
+  meteor *iter = ms->meteors;
+  do {
+    if (iter != NULL) {
+      if (bullet_check_collision(s->bullets, iter)) {
+        meteor_take_damage(iter, s->attr.damage);
+        hit = true;
 
-  iter = ms->meteors;
-  while (iter != NULL) {
-    if (iter->next != NULL) {
-      if (bullet_check_collision(s->bullets, iter->next)) {
-        regular_message("removing this meteor");
-
-        m = meteor_init(window_size);
-        m->next = iter->next->next;
-
-        meteor_destroy(iter->next);
-
-        iter->next = m;
-        ms->meteor_count --;
+        iter = iter->next;
       }
     }
     if (iter != NULL)
       iter = iter->next;
-  }
+  } while (iter != NULL);
   return hit;
 }
 
@@ -291,6 +274,8 @@ void ship_destroy(ship *s) {
     if (s->bullets) {
       bullet_destroy(s->bullets);
     }
+
+    regular_message("destroy ship object");
     free(s);
   }
 }

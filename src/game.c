@@ -58,7 +58,9 @@ game *game_init(const int w, const int h) {
     return NULL;
   }
 
-  g->panel.sb = status_bar_init(g->object.s, g->core.window_size);
+  g->panel.sb = status_bar_init(g->object.s,
+                                g->object.ms,
+                                g->core.window_size);
   if (!g->panel.sb) {
     error_message("fail to create allegro event queue");
     al_destroy_display(g->core.display);

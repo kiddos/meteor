@@ -15,6 +15,7 @@ const double SHIP_STARTING_DAMAGE = 10;
 const double SHIP_MAX_MANA = 100;
 const double SHIP_BULLET_MANA = 10;
 const double SHIP_MANA_GAIN = 1;
+const double SHIP_IMMUNE_DURATION = 6;
 
 ship *ship_init(const point start) {
   ALLEGRO_CONFIG *config = al_load_config_file(CONFIG_FILE_PATH);
@@ -54,6 +55,7 @@ ship *ship_init(const point start) {
     s->attr.damage = SHIP_STARTING_DAMAGE;
     s->attr.is_buffed = false;
     s->attr.is_immune = false;
+    s->attr.time_stamp = 0;
 
     al_destroy_config(config);
     return s;
@@ -67,6 +69,7 @@ void ship_update(ship *s, const size window_size) {
   const double ship_diag = SHIP_SIZE * sqrt(2) / 2;
   double new_dx = s->v.dx, new_dy = s->v.dy;
 
+  // update movement
   if (s->m.movement[LEFT])
     new_dx -= s->a.ax;
   if (s->m.movement[RIGHT])
@@ -96,9 +99,11 @@ void ship_update(ship *s, const size window_size) {
     s->center.y += s->v.dy;
   }
 
+  // compute speed and velocity
   s->direction = velocity_compute_direction(s->v);
   s->speed = velocity_compute_speed(s->v);
 
+  // update ship bullets
   if (s->bullets != NULL) {
     bullet_update(s->bullets, window_size);
     s->bullet_count = bullet_get_count(s->bullets);
@@ -114,10 +119,20 @@ void ship_update(ship *s, const size window_size) {
     }
   }
 
+  // increase mana
   ship_increase_mana(s, SHIP_MANA_GAIN);
+
+  // check immune duration
+  if (s->attr.is_immune) {
+    const double time_passed = al_get_time() - s->attr.time_stamp;
+    if (time_passed >= SHIP_IMMUNE_DURATION) {
+      s->attr.is_immune = false;
+      s->attr.time_stamp = 0;
+    }
+  }
 }
 
-void ship_move(ship *s, ship_direction d) {
+void ship_move(ship *s, const ship_direction d) {
   switch (d) {
     case UP:
       s->m.movement[UP] = true;
@@ -134,7 +149,7 @@ void ship_move(ship *s, ship_direction d) {
   }
 }
 
-void ship_stop(ship *s, ship_direction d) {
+void ship_stop(ship *s, const ship_direction d) {
   switch (d) {
     case UP:
       s->m.movement[UP] = false;
@@ -213,6 +228,19 @@ void ship_shoot_bullet(ship *s) {
   }
 }
 
+void ship_take_damage(ship *s) {
+  if (s != NULL) {
+    if (!s->attr.is_immune) {
+      if (s->attr.lives > 0)
+        s->attr.lives --;
+      s->attr.is_immune = true;
+      s->attr.time_stamp = al_get_time();
+    }
+  } else {
+    error_message("ship object null pointer");
+  }
+}
+
 bool ship_collide_with_meteor(const ship *s, const meteor *m) {
   const double dx = s->center.x - m->center.x;
   const double dy = s->center.y - m->center.y;
@@ -263,15 +291,41 @@ bool ship_check_bullet_hit(const ship *s,
 }
 
 void ship_draw(const ship *s) {
+  // draw the bullets
   bullet_draw(s->bullets);
 
-  al_draw_scaled_rotated_bitmap(s->bitmap,
-                                al_get_bitmap_width(s->bitmap) / 2,
-                                al_get_bitmap_height(s->bitmap) / 2,
-                                s->center.x, s->center.y,
-                                SHIP_SIZE / al_get_bitmap_width(s->bitmap),
-                                SHIP_SIZE / al_get_bitmap_height(s->bitmap),
-                                s->direction, 0);
+  // draw the ship
+  const uint32_t bitmap_width = al_get_bitmap_width(s->bitmap);
+  const uint32_t bitmap_height = al_get_bitmap_height(s->bitmap);
+
+  if (s->attr.is_immune) {
+    const double time_passed = al_get_time() - s->attr.time_stamp;
+    if (time_passed - floor(time_passed) < 0.5) {
+      al_draw_tinted_scaled_rotated_bitmap(s->bitmap, color_gray(),
+                                           bitmap_width / 2,
+                                           bitmap_height / 2,
+                                           s->center.x, s->center.y,
+                                           SHIP_SIZE / bitmap_width,
+                                           SHIP_SIZE / bitmap_height,
+                                           s->direction, 0);
+    } else {
+      al_draw_scaled_rotated_bitmap(s->bitmap,
+                                    bitmap_width / 2,
+                                    bitmap_height / 2,
+                                    s->center.x, s->center.y,
+                                    SHIP_SIZE / bitmap_width,
+                                    SHIP_SIZE / bitmap_height,
+                                    s->direction, 0);
+    }
+  } else {
+    al_draw_scaled_rotated_bitmap(s->bitmap,
+                                  bitmap_width / 2,
+                                  bitmap_height / 2,
+                                  s->center.x, s->center.y,
+                                  SHIP_SIZE / bitmap_width,
+                                  SHIP_SIZE / bitmap_height,
+                                  s->direction, 0);
+  }
 
 #ifdef DEBUG
   al_draw_circle(s->center.x, s->center.y, 5, al_map_rgb(255, 0, 0), 3);

@@ -44,13 +44,13 @@ bool meteor_is_broken_down(const meteor *m);
 double meteor_get_size(const meteor *m);
 void meteor_take_damage(meteor *m, const double damage);
 void meteor_update(meteor *m, const size window_size);
-void meteor_draw(meteor *m);
+void meteor_draw(const meteor *m);
 void meteor_destroy(meteor *m);
 
 meteor_shower *meteor_shower_init(const size window_size);
 void meteor_shower_add_meteor(meteor_shower *ms, const size window_size);
 void meteor_shower_update(meteor_shower *ms, const size window_size);
-void meteor_shower_draw(meteor_shower *ms);
+void meteor_shower_draw(const meteor_shower *ms);
 void meteor_shower_destroy(meteor_shower *ms);
 
 #endif /* end of include guard: METEOR_H */

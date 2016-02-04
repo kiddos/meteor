@@ -203,7 +203,7 @@ void meteor_update(meteor *m, const size window_size) {
   m->angle += m->w;
 }
 
-void meteor_draw(meteor *m) {
+void meteor_draw(const meteor *m) {
   const double ms = meteor_get_size(m);
   al_draw_scaled_rotated_bitmap(m->bitmap,
                                 al_get_bitmap_width(m->bitmap) / 2.0,
@@ -291,7 +291,7 @@ void meteor_shower_update(meteor_shower *ms, const size window_size) {
   } while (iter != NULL);
 }
 
-void meteor_shower_draw(meteor_shower *ms) {
+void meteor_shower_draw(const meteor_shower *ms) {
   meteor *iter = NULL;
   iter = ms->meteors;
 

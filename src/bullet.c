@@ -4,18 +4,21 @@ const double BULLET_SPEED = 5;
 const double BULLET_WIDTH = 2;
 const double BULLET_LENGTH = 6;
 
-bullet *bullet_init(const point start, const double direction) {
+bullet *bullet_init(const point start, const double direction,
+                    const double damage) {
   bullet *b = (bullet *) malloc(sizeof(bullet));
   b->start.x = start.x;
   b->start.y = start.y;
   b->speed = BULLET_SPEED;
   b->direction = direction;
   b->v = velocity_init(b->speed, b->direction);
+  b->is_used = false;
   b->next = NULL;
   return b;
 }
 
-void bullet_add(bullet *bullets, const point start, const double direction) {
+void bullet_add(bullet *bullets, const point start,
+                const double direction, const double damage) {
   bullet *iter = NULL, *new_bullet;
   if (bullets != NULL) {
     iter = bullets;
@@ -30,6 +33,7 @@ void bullet_add(bullet *bullets, const point start, const double direction) {
     new_bullet->speed = BULLET_SPEED;
     new_bullet->direction = direction;
     new_bullet->v = velocity_init(new_bullet->speed, new_bullet->direction);
+    new_bullet->is_used = false;
     new_bullet->next = NULL;
 
     iter->next = new_bullet;
@@ -73,12 +77,15 @@ bool bullet_hit_meteor(bullet *b, const meteor *m) {
   }
 }
 
-bool bullet_check_collision(bullet *bullets, const meteor *m) {
+bool bullet_check_collision(bullet *bullets, meteor *m) {
   bullet *iter = NULL;
   if (bullets != NULL) {
     iter = bullets;
     do {
       if (bullet_hit_meteor(iter, m)) {
+        regular_message("bullet is used");
+        iter->is_used = true;
+
         return true;
       }
 
@@ -87,6 +94,16 @@ bool bullet_check_collision(bullet *bullets, const meteor *m) {
     return false;
   }
   return false;
+}
+
+bool bullet_is_used(bullet *b) {
+  return b->is_used;
+}
+
+void bullet_use(bullet *b) {
+  if (b != NULL) {
+    b->is_used = true;
+  }
 }
 
 void bullet_update(bullet *bullets, const size window_size) {
@@ -104,8 +121,10 @@ void bullet_update(bullet *bullets, const size window_size) {
       }
 
       if (iter->next != NULL) {
-        if (!bullet_is_inside_screen(iter->next, window_size)) {
-          regular_message("next bullet not inside screen, cleaning up");
+        if (!bullet_is_inside_screen(iter->next, window_size) ||
+            bullet_is_used(iter->next)) {
+          regular_message("next bullet not inside screen or is used");
+
           temp = iter->next->next;
           free(iter->next);
           iter->next = temp;
@@ -138,7 +157,7 @@ void bullet_destroy(bullet *bullets) {
   if (bullets != NULL) {
     iter = bullets;
     do {
-      regular_message("destroy ship bullet");
+      regular_message("destroy bullet object");
       temp = iter->next;
 
       free(iter);

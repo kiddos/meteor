@@ -187,8 +187,6 @@ void game_main_loop(game *g) {
 
           regular_message("window resize event");
 
-          /*ship_update(g->object.s, g->core.window_size);*/
-          /*meteor_shower_update(g->object.ms, g->core.window_size);*/
           status_bar_update(g->panel.sb, g->core.window_size);
         } else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
         } else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {

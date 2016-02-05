@@ -5,6 +5,7 @@
 #include "ship.h"
 #include "meteor.h"
 #include "statusbar.h"
+#include "menu.h"
 
 // constants
 extern const double FPS;
@@ -26,6 +27,7 @@ typedef struct game_t {
 
   struct {
     status_bar *sb;
+    menu *m;
   } panel;
 } game;
 

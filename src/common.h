@@ -51,8 +51,9 @@ double acceleration_compute_direction(acceleration v);
 /* colors */
 ALLEGRO_COLOR color_white();
 ALLEGRO_COLOR color_black();
-ALLEGRO_COLOR color_dark_gray();
+ALLEGRO_COLOR color_light_gray();
 ALLEGRO_COLOR color_gray();
+ALLEGRO_COLOR color_dark_gray();
 ALLEGRO_COLOR color_blue();
 
 #endif /* end of include guard: COMMON_H */

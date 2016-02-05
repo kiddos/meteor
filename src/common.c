@@ -79,12 +79,16 @@ ALLEGRO_COLOR color_black() {
   return al_map_rgb(0, 0, 0);
 }
 
-ALLEGRO_COLOR color_dark_gray() {
-  return al_map_rgb(66, 66, 66);
+ALLEGRO_COLOR color_light_gray() {
+  return al_map_rgb(160, 160, 160);
 }
 
 ALLEGRO_COLOR color_gray() {
   return al_map_rgb(128, 128, 128);
+}
+
+ALLEGRO_COLOR color_dark_gray() {
+  return al_map_rgb(66, 66, 66);
 }
 
 ALLEGRO_COLOR color_blue() {

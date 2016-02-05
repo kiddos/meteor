@@ -71,6 +71,19 @@ game *game_init(const int w, const int h) {
     free(g);
     return NULL;
   }
+
+  g->panel.m = menu_init(FONT_PATH, g->core.window_size);
+  if (!g->panel.m) {
+    error_message("fail to create allegro event queue");
+    al_destroy_display(g->core.display);
+    al_destroy_timer(g->core.timer);
+    al_destroy_event_queue(g->core.event_queue);
+    ship_destroy(g->object.s);
+    meteor_shower_destroy(g->object.ms);
+    status_bar_destroy(g->panel.sb);
+    free(g);
+    return NULL;
+  }
   return g;
 }
 
@@ -180,6 +193,7 @@ void game_main_loop(game *g) {
 
           // update panel
           status_bar_update(g->panel.sb, g->core.window_size);
+          menu_update(g->panel.m, g->core.window_size);
         } else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
           al_acknowledge_resize(g->core.display);
           g->core.window_size.w = event.display.width;
@@ -188,6 +202,7 @@ void game_main_loop(game *g) {
           regular_message("window resize event");
 
           status_bar_update(g->panel.sb, g->core.window_size);
+          menu_update(g->panel.m, g->core.window_size);
         } else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
         } else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
         } else if (event.type == ALLEGRO_EVENT_KEY_UP) {
@@ -214,9 +229,17 @@ void game_main_loop(game *g) {
           switch (event.keyboard.keycode) {
             case ALLEGRO_KEY_UP:
               ship_move(g->object.s, UP);
+
+              if (menu_is_visible(g->panel.m)) {
+                menu_move_up_selection(g->panel.m);
+              }
               break;
             case ALLEGRO_KEY_DOWN:
               ship_move(g->object.s, DOWN);
+
+              if (menu_is_visible(g->panel.m)) {
+                menu_move_down_selection(g->panel.m);
+              }
               break;
             case ALLEGRO_KEY_LEFT:
               ship_move(g->object.s, LEFT);
@@ -224,6 +247,31 @@ void game_main_loop(game *g) {
             case ALLEGRO_KEY_RIGHT:
               ship_move(g->object.s, RIGHT);
               break;
+            case ALLEGRO_KEY_ENTER:
+              if (menu_is_visible(g->panel.m)) {
+                menu_selection selection = menu_get_selection(g->panel.m);
+                switch (selection) {
+                  case MENU_SELECTION_START:
+                    menu_set_visible(g->panel.m, false);
+                    break;
+                  case MENU_SELECTION_RESTART:
+                    // TODO reset ship and timer
+                    menu_set_visible(g->panel.m, false);
+                    break;
+                  case MENU_SELECTION_HELP:
+                    // TODO
+                    break;
+                  case MENU_SELECTION_EXIT:
+                    g->core.running = false;
+                    break;
+                }
+              }
+              break;
+          }
+        } else if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+          const point mouse = point_init(event.mouse.x, event.mouse.y);
+          if (menu_is_visible(g->panel.m)) {
+            menu_change_selection_with_mouse(g->panel.m, mouse);
           }
         }
       } while (!al_is_event_queue_empty(g->core.event_queue));
@@ -237,6 +285,8 @@ void game_main_loop(game *g) {
 
         // panel drawing
         status_bar_draw(g->panel.sb);
+
+        menu_draw(g->panel.m);
 
         al_flip_display();
 
@@ -260,6 +310,9 @@ void game_destroy(game *g) {
       meteor_shower_destroy(g->object.ms);
     if (g->panel.sb)
       status_bar_destroy(g->panel.sb);
+    if (g->panel.m)
+      menu_destroy(g->panel.m);
+
     free(g);
   }
 

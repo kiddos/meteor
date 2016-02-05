@@ -243,14 +243,16 @@ void game_main_loop(game *g) {
             case ALLEGRO_KEY_UP:
               ship_move(g->object.s, UP);
 
-              if (menu_is_visible(g->panel.m)) {
+              if (menu_is_visible(g->panel.m) &&
+                  !menu_is_displaying_help(g->panel.m)) {
                 menu_move_up_selection(g->panel.m);
               }
               break;
             case ALLEGRO_KEY_DOWN:
               ship_move(g->object.s, DOWN);
 
-              if (menu_is_visible(g->panel.m)) {
+              if (menu_is_visible(g->panel.m) &&
+                  !menu_is_displaying_help(g->panel.m)) {
                 menu_move_down_selection(g->panel.m);
               }
               break;
@@ -277,7 +279,7 @@ void game_main_loop(game *g) {
                     status_bar_start(g->panel.sb);
                     break;
                   case MENU_SELECTION_HELP:
-                    // TODO
+                    menu_toggle_display_help(g->panel.m);
                     break;
                   case MENU_SELECTION_EXIT:
                     g->core.running = false;

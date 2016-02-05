@@ -2,6 +2,7 @@
 #define MENU_H
 
 #include "common.h"
+#include "help.h"
 
 /* constants */
 extern const char * const MENU_START_TEXT;
@@ -34,6 +35,10 @@ typedef struct menu_t {
   menu_selection selections[3];
   point title_center, option_center;
   size window_size;
+  struct {
+    help *h;
+    bool display_help;
+  } help_menu;
 } menu;
 
 menu *menu_init(const char * const font_path, const size window_size);
@@ -41,6 +46,8 @@ bool menu_is_visible(const menu *m);
 bool menu_is_in_start_mode(const menu *m);
 void menu_set_visible(menu *m, const bool visible);
 void menu_set_mode(menu *m, const menu_mode mode);
+bool menu_is_displaying_help(const menu *m);
+void menu_toggle_display_help(menu *m);
 void menu_move_up_selection(menu *m);
 void menu_move_down_selection(menu *m);
 void menu_change_selection_with_mouse(menu *m, const point mouse);

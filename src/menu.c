@@ -63,6 +63,12 @@ menu *menu_init(const char * const font_path, const size window_size) {
   m->option_center.y = m->title_center.y + 3 * MENU_OPTION_PADDING;
   m->window_size = window_size;
 
+  // help menu
+  m->help_menu.h = help_init(FONT_PATH, color_white(),
+                             point_init(m->option_center.x,
+                                        m->option_center.y));
+  m->help_menu.display_help = false;
+
   return m;
 }
 
@@ -95,6 +101,24 @@ void menu_set_mode(menu *m, const menu_mode mode) {
     } else if (m->mode == MENU_GAME_OVER) {
       m->selections[0] = MENU_SELECTION_RESTART;
     }
+  } else {
+    error_message("menu object null pointer");
+  }
+}
+
+bool menu_is_displaying_help(const menu *m) {
+  if (m != NULL) {
+    return m->help_menu.display_help;
+  } else {
+    error_message("menu object null pointer");
+    return false;
+  }
+}
+
+void menu_toggle_display_help(menu *m) {
+  if (m != NULL) {
+    help_reset(m->help_menu.h);
+    m->help_menu.display_help = !m->help_menu.display_help;
   } else {
     error_message("menu object null pointer");
   }
@@ -162,6 +186,10 @@ void menu_update(menu *m, const size window_size) {
     m->option_center.x = window_size.w / 2;
     m->option_center.y = m->title_center.y + 3 * MENU_OPTION_PADDING;
     m->window_size = window_size;
+
+    if (m->help_menu.display_help) {
+      help_update(m->help_menu.h);
+    }
   }
 }
 
@@ -190,20 +218,26 @@ void menu_draw(const menu *m) {
                 m->title_center.x, m->title_center.y,
                 ALLEGRO_ALIGN_CENTER, PROJECT_NAME);
 
-    // option
-    for (i = 0 ; i < 3 ; i ++) {
-      if (m->selection == i) {
-        al_draw_text(m->option_font, m->option_selected_color,
-                    m->option_center.x,
-                    m->option_center.y + MENU_OPTION_PADDING * i +
-                    m->option_font->height * i,
-                    ALLEGRO_ALIGN_CENTER, option_text[i]);
-      } else {
-        al_draw_text(m->option_font, m->option_nonselect_color,
-                    m->option_center.x,
-                    m->option_center.y + MENU_OPTION_PADDING * i +
-                    m->option_font->height * i,
-                    ALLEGRO_ALIGN_CENTER, option_text[i]);
+    // decide rather to draw help or option
+    if (m->help_menu.display_help) {
+      // help menu
+      help_draw(m->help_menu.h);
+    } else {
+      // option
+      for (i = 0 ; i < 3 ; i ++) {
+        if (m->selection == i) {
+          al_draw_text(m->option_font, m->option_selected_color,
+                      m->option_center.x,
+                      m->option_center.y + MENU_OPTION_PADDING * i +
+                      m->option_font->height * i,
+                      ALLEGRO_ALIGN_CENTER, option_text[i]);
+        } else {
+          al_draw_text(m->option_font, m->option_nonselect_color,
+                      m->option_center.x,
+                      m->option_center.y + MENU_OPTION_PADDING * i +
+                      m->option_font->height * i,
+                      ALLEGRO_ALIGN_CENTER, option_text[i]);
+        }
       }
     }
   }

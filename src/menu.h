@@ -12,6 +12,7 @@ extern const double MENU_OPTION_PADDING;
 
 typedef enum {
   MENU_START,
+  MENU_IN_GAME,
   MENU_GAME_OVER
 } menu_mode;
 
@@ -30,13 +31,14 @@ typedef struct menu_t {
   menu_mode mode;
   bool is_visible;
   uint8_t selection;
-  menu_selection selections[4];
+  menu_selection selections[3];
   point title_center, option_center;
   size window_size;
 } menu;
 
 menu *menu_init(const char * const font_path, const size window_size);
 bool menu_is_visible(const menu *m);
+bool menu_is_in_start_mode(const menu *m);
 void menu_set_visible(menu *m, const bool visible);
 void menu_set_mode(menu *m, const menu_mode mode);
 void menu_move_up_selection(menu *m);

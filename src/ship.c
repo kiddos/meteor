@@ -231,11 +231,58 @@ void ship_shoot_bullet(ship *s) {
 void ship_take_damage(ship *s) {
   if (s != NULL) {
     if (!s->attr.is_immune) {
-      if (s->attr.lives > 0)
-        s->attr.lives --;
+      s->attr.lives --;
       s->attr.is_immune = true;
       s->attr.time_stamp = al_get_time();
     }
+  } else {
+    error_message("ship object null pointer");
+  }
+}
+
+bool ship_game_over(const ship *s) {
+  if (s != NULL) {
+    return s->attr.lives < 0;
+  } else {
+    error_message("ship object null pointer");
+    return true;
+  }
+}
+
+void ship_reset(ship *s, const size window_size) {
+  if (s != NULL) {
+    ALLEGRO_CONFIG *config = al_load_config_file(CONFIG_FILE_PATH);
+    if (config != NULL) {
+      // reset ship attributes
+      s->attr.lives = SHIP_STARTING_LIVES;
+      s->attr.mana = SHIP_MAX_MANA;
+      s->attr.level = atoi(al_get_config_value(config,
+                                                CONFIG_SHIP_SECTION,
+                                                CONFIG_SHIP_LEVEL_KEY));
+      s->attr.damage = SHIP_STARTING_DAMAGE;
+      s->attr.is_buffed = false;
+      s->attr.is_immune = false;
+      s->attr.time_stamp = 0;
+      al_destroy_config(config);
+    }
+
+    s->center.x = window_size.w / 2;
+    s->center.y = window_size.h / 2;
+    s->v.dx = 0;
+    s->v.dy = 0;
+    s->direction = velocity_compute_direction(s->v);
+    s->speed = velocity_compute_speed(s->v);
+
+    // destroy bullets
+    bullet_destroy(s->bullets);
+    s->bullets = NULL;
+    s->bullet_count = 0;
+
+    // reset movement
+    s->m.movement[UP] = false;
+    s->m.movement[DOWN] = false;
+    s->m.movement[LEFT] = false;
+    s->m.movement[RIGHT] = false;
   } else {
     error_message("ship object null pointer");
   }

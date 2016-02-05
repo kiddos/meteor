@@ -61,6 +61,7 @@ void ship_increase_mana(ship *s, const double mana);
 void ship_shoot_bullet(ship *s);
 void ship_take_damage(ship *s);
 bool ship_game_over(const ship *s);
+void ship_reset(ship *s, const size window_size);
 bool ship_collide_with_meteor(const ship *s, const meteor *m);
 bool ship_check_bullet_hit(const ship *s,
                            meteor_shower *ms,

@@ -49,12 +49,11 @@ menu *menu_init(const char * const font_path, const size window_size) {
   m->option_selected_color = color_light_gray();
   m->option_nonselect_color = color_dark_gray();
 
-  m->mode = MENU_GAME_OVER;
+  m->mode = MENU_START;
   m->selection = 0;
   m->selections[0] = MENU_SELECTION_START;
-  m->selections[1] = MENU_SELECTION_RESTART;
-  m->selections[2] = MENU_SELECTION_HELP;
-  m->selections[3] = MENU_SELECTION_EXIT;
+  m->selections[1] = MENU_SELECTION_HELP;
+  m->selections[2] = MENU_SELECTION_EXIT;
 
   m->title_center.x = window_size.w / 2;
   m->title_center.y = (window_size.h - 5 * COMPUTE_OPTION_FONT_SIZE(window_size) -
@@ -76,6 +75,10 @@ bool menu_is_visible(const menu *m) {
   }
 }
 
+bool menu_is_in_start_mode(const menu *m) {
+  return m->mode == MENU_START;
+}
+
 void menu_set_visible(menu *m, const bool visible) {
   if (m != NULL) {
     m->is_visible = visible;
@@ -87,6 +90,11 @@ void menu_set_visible(menu *m, const bool visible) {
 void menu_set_mode(menu *m, const menu_mode mode) {
   if (m != NULL) {
     m->mode = mode;
+    if (m->mode == MENU_START) {
+      m->selections[0] = MENU_SELECTION_START;
+    } else if (m->mode == MENU_GAME_OVER) {
+      m->selections[0] = MENU_SELECTION_RESTART;
+    }
   } else {
     error_message("menu object null pointer");
   }
@@ -113,14 +121,17 @@ void menu_move_down_selection(menu *m) {
 }
 
 void menu_change_selection_with_mouse(menu *m, const point mouse) {
-  const char *option_text[4];
-  option_text[0] = MENU_START_TEXT;
-  option_text[1] = MENU_RESTART_TEXT;
-  option_text[2] = MENU_HELP_TEXT;
-  option_text[3] = MENU_EXIT_TEXT;
+  const char *option_text[3];
+  if (m->mode == MENU_START) {
+    option_text[0] = MENU_START_TEXT;
+  } else {
+    option_text[0] = MENU_RESTART_TEXT;
+  }
+  option_text[1] = MENU_HELP_TEXT;
+  option_text[2] = MENU_EXIT_TEXT;
 
   int i;
-  for (i = 0 ; i < 4 ; i ++) {
+  for (i = 0 ; i < 3 ; i ++) {
     const int text_width = al_get_text_width(m->option_font, option_text[i]);
     if (mouse.x >= m->option_center.x - text_width/2 - MENU_OPTION_PADDING/2 &&
         mouse.x <= m->option_center.x + text_width/2 + MENU_OPTION_PADDING/2 &&
@@ -157,11 +168,14 @@ void menu_update(menu *m, const size window_size) {
 void menu_draw(const menu *m) {
   if (m->is_visible) {
     uint32_t i;
-    const char *option_text[4];
-    option_text[0] = MENU_START_TEXT;
-    option_text[1] = MENU_RESTART_TEXT;
-    option_text[2] = MENU_HELP_TEXT;
-    option_text[3] = MENU_EXIT_TEXT;
+    const char *option_text[3];
+    if (m->mode == MENU_START) {
+      option_text[0] = MENU_START_TEXT;
+    } else {
+      option_text[0] = MENU_RESTART_TEXT;
+    }
+    option_text[1] = MENU_HELP_TEXT;
+    option_text[2] = MENU_EXIT_TEXT;
 
     if (m->mode == MENU_GAME_OVER) {
       al_draw_scaled_bitmap(m->cover, 0, 0,
@@ -177,7 +191,7 @@ void menu_draw(const menu *m) {
                 ALLEGRO_ALIGN_CENTER, PROJECT_NAME);
 
     // option
-    for (i = 0 ; i < 4 ; i ++) {
+    for (i = 0 ; i < 3 ; i ++) {
       if (m->selection == i) {
         al_draw_text(m->option_font, m->option_selected_color,
                     m->option_center.x,

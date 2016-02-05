@@ -23,6 +23,7 @@
 #endif
 
 extern const char * const FONT_PATH;
+extern const char * const PROJECT_NAME;
 
 typedef struct point_t {
   double x, y;

@@ -2,6 +2,7 @@
 
 /* constants */
 const char * const FONT_PATH = "res/fonts/SquadaOne-Regular.ttf";
+const char * const PROJECT_NAME = "Meteor";
 
 point point_init(const double x, const double y) {
   point p;

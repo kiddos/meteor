@@ -61,3 +61,4 @@ void meteor_shower_draw(const meteor_shower *ms);
 void meteor_shower_destroy(meteor_shower *ms);
 
 #endif /* end of include guard: METEOR_H */
+

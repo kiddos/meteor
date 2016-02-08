@@ -45,3 +45,4 @@ void status_bar_draw(status_bar *sb);
 void status_bar_destroy(status_bar *sb);
 
 #endif /* end of include guard: STATUSBAR_H */
+

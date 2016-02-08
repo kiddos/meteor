@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "help.h"
+#include "record.h"
 
 /* constants */
 extern const char * const MENU_START_TEXT;
@@ -35,10 +36,15 @@ typedef struct menu_t {
   menu_selection selections[3];
   point title_center, option_center;
   size window_size;
+
   struct {
     help *h;
     bool display_help;
   } help_menu;
+
+  struct {
+    record *r;
+  } record_menu;
 } menu;
 
 menu *menu_init(const char * const font_path, const size window_size);
@@ -52,6 +58,8 @@ void menu_move_up_selection(menu *m);
 void menu_move_down_selection(menu *m);
 void menu_change_selection_with_mouse(menu *m, const point mouse);
 menu_selection menu_get_selection(const menu *m);
+bool menu_should_intercept_keyboard_input(const menu *m);
+void menu_input_name_char(menu *m, const char c);
 void menu_update(menu *m, const size window_size);
 void menu_draw(const menu *m);
 void menu_destroy(menu *m);

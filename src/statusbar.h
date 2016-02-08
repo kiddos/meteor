@@ -4,8 +4,8 @@
 #include "common.h"
 #include "timedisplay.h"
 #include "ship.h"
-#include "score.h"
 #include "meteor.h"
+#include "score.h"
 
 /* constants */
 extern const double STATUS_BAR_HEIGHT;
@@ -22,8 +22,11 @@ typedef struct status_bar_t {
   ALLEGRO_COLOR background_color;
   point start;
   size area;
-  time_display *td;
-  score *sco;
+
+  struct {
+    time_display *td;
+    score *s;
+  } display;
 
   struct {
     ship *s;
@@ -36,6 +39,7 @@ status_bar *status_bar_init(ship *s, meteor_shower *ms,
 void status_bar_start(status_bar *sb);
 void status_bar_reset(status_bar *sb);
 void status_bar_set_new_ship(status_bar *sb, ship *s);
+uint64_t status_bar_get_score(const status_bar *sb);
 void status_bar_update(status_bar *sb, const size window_size);
 void status_bar_draw(status_bar *sb);
 void status_bar_destroy(status_bar *sb);

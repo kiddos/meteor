@@ -33,7 +33,11 @@ score *score_init(ALLEGRO_FONT *font,
 uint64_t score_get_total_score(const score *s) {
   if (s != NULL) {
     return (uint64_t) s->total_score;
+  } else {
+    error_message("score object null pointer");
+    return 0;
   }
+  return 0;
 }
 
 void score_set_point(score *s, const point start) {

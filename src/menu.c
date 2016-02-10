@@ -1,6 +1,7 @@
 #include "menu.h"
 
 #define MENU_COVER_PATH "res/images/cover.png"
+#define MENU_RECORD_NAME_PROMPT "NAME:"
 
 #define COMPUTE_TITLE_FONT_SIZE(window_size) (window_size.h / 20)
 #define COMPUTE_OPTION_FONT_SIZE(window_size) (window_size.h / 30)
@@ -69,6 +70,9 @@ menu *menu_init(const char * const font_path, const size window_size) {
                                         m->option_center.y));
   m->help_menu.display_help = false;
 
+  m->record_menu.r = record_init();
+  m->record_menu.id = input_dialog_init(MENU_RECORD_NAME_PROMPT, color_white(),
+                                        FONT_PATH, window_size);
   return m;
 }
 
@@ -251,8 +255,19 @@ void menu_destroy(menu *m) {
       al_destroy_font(m->title_font);
     if (m->option_font)
       al_destroy_font(m->option_font);
+    if (m->help_menu.h)
+      help_destroy(m->help_menu.h);
+    if (m->record_menu.r)
+      record_destroy(m->record_menu.r);
+    if (m->record_menu.id)
+      input_dialog_destroy(m->record_menu.id);
 
     free(m);
   }
 }
+
+#undef MENU_COVER_PATH
+#undef MENU_RECORD_NAME_PROMPT
+#undef COMPUTE_TITLE_FONT_SIZE
+#undef COMPUTE_OPTION_FONT_SIZE
 

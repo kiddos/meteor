@@ -2,6 +2,8 @@
 
 #define ENTRY_FORMAT "%s\t%d"
 
+const char * const RECORD_FILE_PATH = "res/record.data";
+
 record *record_init() {
   char name[128];
   uint32_t score;
@@ -13,7 +15,8 @@ record *record_init() {
   record_file = fopen(RECORD_FILE_PATH, "r");
   if (record_file) {
     while (!feof(record_file)) {
-      fscanf(record_file, ENTRY_FORMAT, name, &score);
+      if (fscanf(record_file, ENTRY_FORMAT, name, &score) == 0)
+        break;
       record_insert(r, name, score);
     }
   }
@@ -65,7 +68,11 @@ const entry *recore_get_entry(record *r, const size_t index) {
         return r->entries + i;
       }
     }
+  } else {
+    error_message("record object null pointer");
+    return NULL;
   }
+  return NULL;
 }
 
 void record_remove_entry(record *r, const size_t index) {
@@ -112,3 +119,4 @@ void record_destroy(record *r) {
   }
 }
 
+#undef ENTRY_FORMAT

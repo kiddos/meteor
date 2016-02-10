@@ -101,7 +101,11 @@ void status_bar_reset(status_bar *sb) {
 uint64_t status_bar_get_score(const status_bar *sb) {
   if (sb != NULL) {
     return score_get_total_score(sb->display.s);
+  } else {
+    error_message("status bar object null pointer");
+    return 0;
   }
+  return 0;
 }
 
 void status_bar_update(status_bar *sb, const size window_size) {

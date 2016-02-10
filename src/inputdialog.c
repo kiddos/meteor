@@ -93,29 +93,25 @@ void input_dialog_update(input_dialog *id, const size window_size) {
 }
 
 void input_dialog_draw(const input_dialog *id) {
-  if (id != NULL) {
-    al_draw_rectangle(id->center.x - id->display_size.w / 2,
-                      id->center.y - id->display_size.h / 2,
-                      id->center.x + id->display_size.w / 2,
-                      id->center.y + id->display_size.h / 2,
-                      id->border_color, 3);
-    al_draw_text(id->font, id->border_color,
-                 id->center.x - id->display_size.w / 2 + INPUT_DIALOG_PADDING,
-                 id->center.y - id->display_size.w / 2 + INPUT_DIALOG_PADDING,
-                 ALLEGRO_ALIGN_LEFT, id->prompt);
-    al_draw_rectangle(id->center.x - id->display_size.w / 2 + INPUT_DIALOG_PADDING,
-                      id->center.y - id->display_size.h / 2 + 2 * INPUT_DIALOG_PADDING,
-                      id->center.x + id->display_size.w / 2 - INPUT_DIALOG_PADDING,
-                      id->center.y + id->display_size.h / 2 +
-                      INPUT_DIALOG_PROMPT_FONT_SIZE,
-                      id->border_color, 2);
-    al_draw_text(id->font, id->border_color,
-                 id->center.x - id->display_size.w / 2 + INPUT_DIALOG_PADDING,
-                 id->center.y - id->display_size.w / 2 + 2 * INPUT_DIALOG_PADDING,
-                 ALLEGRO_ALIGN_LEFT, id->text);
-  } else {
-    error_message("input dialog object null pointer");
-  }
+  al_draw_rectangle(id->center.x - id->display_size.w / 2,
+                    id->center.y - id->display_size.h / 2,
+                    id->center.x + id->display_size.w / 2,
+                    id->center.y + id->display_size.h / 2,
+                    id->border_color, 3);
+  al_draw_text(id->font, id->border_color,
+                id->center.x - id->display_size.w / 2 + INPUT_DIALOG_PADDING,
+                id->center.y - id->display_size.w / 2 + INPUT_DIALOG_PADDING,
+                ALLEGRO_ALIGN_LEFT, id->prompt);
+  al_draw_rectangle(id->center.x - id->display_size.w / 2 + INPUT_DIALOG_PADDING,
+                    id->center.y - id->display_size.h / 2 + 2 * INPUT_DIALOG_PADDING,
+                    id->center.x + id->display_size.w / 2 - INPUT_DIALOG_PADDING,
+                    id->center.y + id->display_size.h / 2 +
+                    INPUT_DIALOG_PROMPT_FONT_SIZE,
+                    id->border_color, 2);
+  al_draw_text(id->font, id->border_color,
+                id->center.x - id->display_size.w / 2 + INPUT_DIALOG_PADDING,
+                id->center.y - id->display_size.w / 2 + 2 * INPUT_DIALOG_PADDING,
+                ALLEGRO_ALIGN_LEFT, id->text);
 }
 
 void input_dialog_destroy(input_dialog *id) {

@@ -4,6 +4,7 @@
 #include "common.h"
 #include "help.h"
 #include "record.h"
+#include "inputdialog.h"
 
 /* constants */
 extern const char * const MENU_START_TEXT;
@@ -44,6 +45,7 @@ typedef struct menu_t {
 
   struct {
     record *r;
+    input_dialog *id;
   } record_menu;
 } menu;
 

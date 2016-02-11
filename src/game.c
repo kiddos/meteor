@@ -171,6 +171,14 @@ void game_main_loop(game *g) {
       do {
         al_wait_for_event(g->core.event_queue, &event);
 
+        if (menu_should_intercept_keyboard_input(g->panel.m)) {
+          if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
+            const char c = event.keyboard.unichar;
+            printf("character input: %c\n", c);
+            menu_input_name_char(g->panel.m, c);
+          }
+        }
+
         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
           // display close event
           regular_message("event close display");
@@ -198,6 +206,7 @@ void game_main_loop(game *g) {
                 // make menu appear
                 menu_set_visible(g->panel.m, true);
                 menu_set_mode(g->panel.m, MENU_GAME_OVER);
+                menu_enable_intercept_keyboard_input(g->panel.m, true);
               }
             }
             // update panel

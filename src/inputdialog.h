@@ -9,6 +9,7 @@ extern const double INPUT_DIALOG_MIN_WIDTH;
 extern const double INPUT_DIALOG_MIN_HEIGHT;
 extern const double INPUT_DIALOG_PROMPT_FONT_SIZE;
 extern const double INPUT_DIALOG_PADDING;
+extern const double INPUT_DIALOG_INNER_PADDING;
 
 typedef struct input_dialog_t {
   ALLEGRO_FONT *font;
@@ -26,6 +27,8 @@ input_dialog *input_dialog_init(const char * const prompt,
                                 const size window_size);
 void input_dialog_retrieve_text(const input_dialog *id,
                                 char text[INPUT_DIALOG_BUFFER_SIZE]);
+void input_dialog_enable_intercept_keyboard_input(input_dialog *id,
+                                                  const bool enable);
 void input_dialog_enter_char(input_dialog *id, const char c);
 void input_dialog_update(input_dialog *id, const size window_size);
 void input_dialog_draw(const input_dialog *id);

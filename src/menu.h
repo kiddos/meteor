@@ -60,6 +60,7 @@ void menu_move_up_selection(menu *m);
 void menu_move_down_selection(menu *m);
 void menu_change_selection_with_mouse(menu *m, const point mouse);
 menu_selection menu_get_selection(const menu *m);
+void menu_enable_intercept_keyboard_input(menu *m, const bool enable);
 bool menu_should_intercept_keyboard_input(const menu *m);
 void menu_input_name_char(menu *m, const char c);
 void menu_update(menu *m, const size window_size);

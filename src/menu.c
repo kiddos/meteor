@@ -181,6 +181,31 @@ menu_selection menu_get_selection(const menu *m) {
   }
 }
 
+void menu_enable_intercept_keyboard_input(menu *m, const bool enable) {
+  if (m != NULL) {
+    input_dialog_enable_intercept_keyboard_input(m->record_menu.id, enable);
+  } else {
+    error_message("menu object null pointer");
+  }
+}
+
+bool menu_should_intercept_keyboard_input(const menu *m) {
+  return m->record_menu.id->should_intercept_keyboard_input;
+}
+
+void menu_input_name_char(menu *m, const char c) {
+  if (m != NULL) {
+    char name_buffer[1024];
+
+    input_dialog_enter_char(m->record_menu.id, c);
+    if (!m->record_menu.id->should_intercept_keyboard_input) {
+      input_dialog_retrieve_text(m->record_menu.id, name_buffer);
+    }
+  } else {
+    error_message("menu object null pointer");
+  }
+}
+
 void menu_update(menu *m, const size window_size) {
   if (m->is_visible) {
     m->title_center.x = window_size.w / 2;
@@ -193,6 +218,10 @@ void menu_update(menu *m, const size window_size) {
 
     if (m->help_menu.display_help) {
       help_update(m->help_menu.h);
+    }
+
+    if (m->record_menu.id->should_intercept_keyboard_input) {
+      input_dialog_update(m->record_menu.id, window_size);
     }
   }
 }
@@ -243,6 +272,10 @@ void menu_draw(const menu *m) {
                       ALLEGRO_ALIGN_CENTER, option_text[i]);
         }
       }
+    }
+
+    if (m->record_menu.id->should_intercept_keyboard_input) {
+      input_dialog_draw(m->record_menu.id);
     }
   }
 }

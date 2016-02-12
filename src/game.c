@@ -175,7 +175,11 @@ void game_main_loop(game *g) {
           if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
             const char c = event.keyboard.unichar;
             printf("character input: %c\n", c);
-            menu_input_name_char(g->panel.m, c);
+
+            if (menu_input_name_char(g->panel.m, c)) {
+              const uint32_t score = status_bar_get_score(g->panel.sb);
+              menu_enter_record(g->panel.m, score);
+            }
           }
         }
 
@@ -272,7 +276,8 @@ void game_main_loop(game *g) {
               ship_move(g->object.s, RIGHT);
               break;
             case ALLEGRO_KEY_ENTER:
-              if (menu_is_visible(g->panel.m)) {
+              if (menu_is_visible(g->panel.m) &&
+                  !menu_should_intercept_keyboard_input(g->panel.m)) {
                 const menu_selection selection = menu_get_selection(g->panel.m);
                 switch (selection) {
                   case MENU_SELECTION_START:
@@ -282,6 +287,7 @@ void game_main_loop(game *g) {
                   case MENU_SELECTION_RESTART:
                     menu_set_visible(g->panel.m, false);
                     menu_set_mode(g->panel.m, MENU_IN_GAME);
+                    menu_reset(g->panel.m);
 
                     ship_reset(g->object.s, g->core.window_size);
                     status_bar_reset(g->panel.sb);

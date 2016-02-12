@@ -10,6 +10,7 @@ const double INPUT_DIALOG_INNER_PADDING = 5;
 
 input_dialog *input_dialog_init(const char * const prompt,
                                 const ALLEGRO_COLOR border_color,
+                                const ALLEGRO_COLOR bg_color,
                                 const char * const font_path,
                                 const size window_size) {
   input_dialog *id = (input_dialog *) malloc(sizeof(input_dialog));
@@ -24,6 +25,7 @@ input_dialog *input_dialog_init(const char * const prompt,
 
 
   id->border_color = border_color;
+  id->bg_color = bg_color;
 
   id->prompt = (char *) malloc(sizeof(char) * (strlen(prompt) + 1));
   memset(id->prompt, '\0', sizeof(char) * (strlen(prompt) + 1));
@@ -101,36 +103,31 @@ void input_dialog_update(input_dialog *id, const size window_size) {
 }
 
 void input_dialog_draw(const input_dialog *id) {
-  al_draw_filled_rectangle(id->center.x - id->display_size.w / 2,
-                           id->center.y - id->display_size.h / 2,
-                           id->center.x + id->display_size.w / 2,
-                           id->center.y + id->display_size.h / 2,
-                           color_dark_gray());
-  al_draw_rectangle(id->center.x - id->display_size.w / 2,
-                    id->center.y - id->display_size.h / 2,
-                    id->center.x + id->display_size.w / 2,
-                    id->center.y + id->display_size.h / 2,
-                    id->border_color, 3);
-  al_draw_text(id->font, id->border_color,
-                id->center.x - id->display_size.w / 2 + INPUT_DIALOG_PADDING,
-                id->center.y - id->display_size.h / 2 +
-                INPUT_DIALOG_PADDING + id->font->height,
-                ALLEGRO_ALIGN_LEFT, id->prompt);
+  const double left_bound = id->center.x - id->display_size.w / 2;
+  const double right_bound = id->center.x + id->display_size.w / 2;
+  const double top_bound = id->center.y - id->display_size.h / 2;
+  const double bot_bound = id->center.y + id->display_size.h / 2;
 
-  al_draw_rectangle(id->center.x - id->display_size.w / 2 + INPUT_DIALOG_PADDING,
-                    id->center.y - id->display_size.h / 2 +
-                    2 * INPUT_DIALOG_PADDING + 2 * id->font->height -
+  al_draw_filled_rectangle(left_bound, top_bound,
+                           right_bound, bot_bound, id->bg_color);
+  al_draw_rectangle(left_bound, top_bound,
+                    right_bound, bot_bound, id->border_color, 3);
+  al_draw_text(id->font, id->border_color,
+               left_bound + INPUT_DIALOG_PADDING,
+               top_bound + INPUT_DIALOG_PADDING + id->font->height,
+               ALLEGRO_ALIGN_LEFT, id->prompt);
+
+  al_draw_rectangle(left_bound + INPUT_DIALOG_PADDING,
+                    top_bound + 2 * INPUT_DIALOG_PADDING + 2 * id->font->height -
                     INPUT_DIALOG_INNER_PADDING,
-                    id->center.x + id->display_size.w / 2 - INPUT_DIALOG_PADDING,
-                    id->center.y - id->display_size.h / 2 +
-                    2 * INPUT_DIALOG_PADDING + 3 * id->font->height +
+                    right_bound - INPUT_DIALOG_PADDING,
+                    top_bound + 2 * INPUT_DIALOG_PADDING + 3 * id->font->height +
                     INPUT_DIALOG_INNER_PADDING,
                     id->border_color, 2);
   al_draw_text(id->font, id->border_color,
-                id->center.x - id->display_size.w / 2 + INPUT_DIALOG_PADDING,
-                id->center.y - id->display_size.h / 2 +
-                2 * INPUT_DIALOG_PADDING + 2 * id->font->height,
-                ALLEGRO_ALIGN_LEFT, id->text);
+               left_bound + INPUT_DIALOG_PADDING + INPUT_DIALOG_INNER_PADDING,
+               top_bound + 2 * INPUT_DIALOG_PADDING + 2 * id->font->height,
+               ALLEGRO_ALIGN_LEFT, id->text);
 }
 
 void input_dialog_destroy(input_dialog *id) {

@@ -71,7 +71,8 @@ menu *menu_init(const char * const font_path, const size window_size) {
   m->help_menu.display_help = false;
 
   m->record_menu.r = record_init();
-  m->record_menu.id = input_dialog_init(MENU_RECORD_NAME_PROMPT, color_white(),
+  m->record_menu.id = input_dialog_init(MENU_RECORD_NAME_PROMPT,
+                                        color_white(), color_dark_gray(),
                                         FONT_PATH, window_size);
   return m;
 }

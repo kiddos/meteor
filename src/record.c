@@ -1,6 +1,6 @@
 #include "record.h"
 
-#define ENTRY_FORMAT "%s\t%d"
+#define ENTRY_FORMAT "%s\t%d\n"
 
 const char * const RECORD_FILE_PATH = "res/record.data";
 
@@ -41,6 +41,8 @@ void record_insert(record *r, const char * const name, const uint32_t score) {
       strcpy(r->entries[r->entry_count - 1].name, name);
       r->entries[r->entry_count - 1].score = score;
     }
+
+    record_save(r);
   }
 }
 

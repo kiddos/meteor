@@ -57,30 +57,51 @@ void input_dialog_enable_intercept_keyboard_input(input_dialog *id,
   }
 }
 
-void input_dialog_enter_char(input_dialog *id, const char c) {
+bool input_dialog_enter_char(input_dialog *id, const char c) {
   if (id != NULL) {
     const int32_t str_length = strlen(id->text);
+    bool finish = false;
+
     if (str_length < INPUT_DIALOG_BUFFER_SIZE) {
-      if (c == 8) {
-        if (str_length - 1 >= 0) {
-          id->text[str_length - 1] = '\0';
-        } else {
-          error_message("backspace out of bound");
-        }
-      } else if (c == '\0'){
-        regular_message("null character");
-      } else {
-        id->text[str_length] = c;
+      printf("character %i\n", c);
+
+      switch (c) {
+        case 27:
+          finish = false;
+          id->should_intercept_keyboard_input = false;
+          break;
+        case 10:
+        case 13:
+          id->should_intercept_keyboard_input = false;
+          finish = true;
+          break;
+        case 8:
+          if (str_length - 1 >= 0) {
+            id->text[str_length - 1] = '\0';
+          } else {
+            error_message("backspace out of bound");
+          }
+          break;
+        case '\0':
+          regular_message("null character");
+          break;
+        default:
+          id->text[str_length] = c;
+          break;
       }
-      if (c == '\n') {
-        id->should_intercept_keyboard_input = false;
-      }
+
+      return finish;
     } else {
       error_message("input dialog character input out of bound");
+      finish = true;
     }
+
+    return finish;
   } else {
     error_message("input dialog object null pointer");
   }
+
+  return false;
 }
 
 void input_dialog_update(input_dialog *id, const size window_size) {

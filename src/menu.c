@@ -239,6 +239,7 @@ void menu_reset(menu *m) {
   if (m != NULL) {
     m->record_menu.record_entered = false;
     memset(m->record_menu.name, '\0', sizeof(char) * MENU_NAME_INPUT_BUFFER_SIZE);
+    input_dialog_reset(m->record_menu.id);
   }
 }
 

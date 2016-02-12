@@ -6,6 +6,8 @@
 #include "record.h"
 #include "inputdialog.h"
 
+#define MENU_NAME_INPUT_BUFFER_SIZE 1024
+
 /* constants */
 extern const char * const MENU_START_TEXT;
 extern const char * const MENU_RESTART_TEXT;
@@ -46,6 +48,8 @@ typedef struct menu_t {
   struct {
     record *r;
     input_dialog *id;
+    char name[1024];
+    bool record_entered;
   } record_menu;
 } menu;
 
@@ -62,10 +66,15 @@ void menu_change_selection_with_mouse(menu *m, const point mouse);
 menu_selection menu_get_selection(const menu *m);
 void menu_enable_intercept_keyboard_input(menu *m, const bool enable);
 bool menu_should_intercept_keyboard_input(const menu *m);
-void menu_input_name_char(menu *m, const char c);
+bool menu_input_name_char(menu *m, const char c);
+void menu_retrieve_name(const menu *m, char name[MENU_NAME_INPUT_BUFFER_SIZE]);
+void menu_enter_record(menu *m, const uint32_t score);
+void menu_reset(menu *m);
 void menu_update(menu *m, const size window_size);
 void menu_draw(const menu *m);
 void menu_destroy(menu *m);
+
+#undef MENU_NAME_INPUT_BUFFER_SIZE
 
 #endif /* end of include guard: MENU_H */
 

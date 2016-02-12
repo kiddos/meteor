@@ -11,6 +11,8 @@ static bool read_line(FILE *record_file,
   uint32_t i = 0;
   char c;
   char score_buffer[64];
+
+  memset(name, '\0', sizeof(char) * RECORD_NAME_BUFFER_SIZE);
   while ((c = fgetc(record_file)) && i < RECORD_NAME_BUFFER_SIZE) {
     if (c != '\t' && c != EOF) {
       name[i ++] = c;

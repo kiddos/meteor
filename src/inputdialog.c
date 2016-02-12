@@ -104,6 +104,13 @@ bool input_dialog_enter_char(input_dialog *id, const char c) {
   return false;
 }
 
+void input_dialog_reset(input_dialog *id) {
+  if (id != NULL) {
+    id->should_intercept_keyboard_input = false;
+    memset(id->text, '\0', sizeof(char) * INPUT_DIALOG_BUFFER_SIZE);
+  }
+}
+
 void input_dialog_update(input_dialog *id, const size window_size) {
   double display_width = 0, display_height = 0;
   id->center = point_init(window_size.w / 2, window_size.h / 2);

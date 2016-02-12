@@ -2,6 +2,7 @@
 
 #define MENU_COVER_PATH "res/images/cover.png"
 #define MENU_RECORD_NAME_PROMPT "NAME:"
+#define MENU_NAME_INPUT_BUFFER_SIZE 1024
 
 #define COMPUTE_TITLE_FONT_SIZE(window_size) (window_size.h / 20)
 #define COMPUTE_OPTION_FONT_SIZE(window_size) (window_size.h / 30)
@@ -74,6 +75,7 @@ menu *menu_init(const char * const font_path, const size window_size) {
   m->record_menu.id = input_dialog_init(MENU_RECORD_NAME_PROMPT,
                                         color_white(), color_dark_gray(),
                                         FONT_PATH, window_size);
+  m->record_menu.record_entered = false;
   return m;
 }
 
@@ -184,7 +186,9 @@ menu_selection menu_get_selection(const menu *m) {
 
 void menu_enable_intercept_keyboard_input(menu *m, const bool enable) {
   if (m != NULL) {
-    input_dialog_enable_intercept_keyboard_input(m->record_menu.id, enable);
+    if (!m->record_menu.record_entered && enable) {
+      input_dialog_enable_intercept_keyboard_input(m->record_menu.id, enable);
+    }
   } else {
     error_message("menu object null pointer");
   }
@@ -194,16 +198,47 @@ bool menu_should_intercept_keyboard_input(const menu *m) {
   return m->record_menu.id->should_intercept_keyboard_input;
 }
 
-void menu_input_name_char(menu *m, const char c) {
+bool menu_input_name_char(menu *m, const char c) {
   if (m != NULL) {
-    char name_buffer[1024];
+    if (input_dialog_enter_char(m->record_menu.id, c)) {
+      memset(m->record_menu.name, '\0', sizeof(char) * MENU_NAME_INPUT_BUFFER_SIZE);
+      input_dialog_retrieve_text(m->record_menu.id, m->record_menu.name);
 
-    input_dialog_enter_char(m->record_menu.id, c);
-    if (!m->record_menu.id->should_intercept_keyboard_input) {
-      input_dialog_retrieve_text(m->record_menu.id, name_buffer);
+      regular_message("name retreived: ");
+      printf("name: %s\n", m->record_menu.name);
+
+      return true;
     }
   } else {
     error_message("menu object null pointer");
+  }
+  return false;
+}
+
+void menu_retrieve_name(const menu *m, char name[MENU_NAME_INPUT_BUFFER_SIZE]) {
+  if (m != NULL) {
+    strncpy(name, m->record_menu.name,
+            sizeof(char) * MENU_NAME_INPUT_BUFFER_SIZE);
+  } else {
+    error_message("menu object null pointer");
+  }
+}
+
+void menu_enter_record(menu *m, const uint32_t score) {
+  if (m != NULL) {
+    regular_message("******* enter record *******");
+
+    record_insert(m->record_menu.r, m->record_menu.name, score);
+    m->record_menu.record_entered = true;
+  } else {
+    error_message("menu object null pointer");
+  }
+}
+
+void menu_reset(menu *m) {
+  if (m != NULL) {
+    m->record_menu.record_entered = false;
+    memset(m->record_menu.name, '\0', sizeof(char) * MENU_NAME_INPUT_BUFFER_SIZE);
   }
 }
 
@@ -302,6 +337,7 @@ void menu_destroy(menu *m) {
 
 #undef MENU_COVER_PATH
 #undef MENU_RECORD_NAME_PROMPT
+#undef MENU_NAME_INPUT_BUFFER_SIZE
 #undef COMPUTE_TITLE_FONT_SIZE
 #undef COMPUTE_OPTION_FONT_SIZE
 

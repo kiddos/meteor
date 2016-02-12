@@ -1,8 +1,40 @@
 #include "record.h"
 
-#define ENTRY_FORMAT "%s\t%d\n"
+#define RECORD_ENTRY_FORMAT "%s\t%d\n"
+#define RECORD_NAME_BUFFER_SIZE 128
 
 const char * const RECORD_FILE_PATH = "res/record.data";
+
+static bool read_line(FILE *record_file,
+                      char name[RECORD_NAME_BUFFER_SIZE],
+                      uint32_t *score) {
+  uint32_t i = 0;
+  char c;
+  char score_buffer[64];
+  while ((c = fgetc(record_file)) && i < RECORD_NAME_BUFFER_SIZE) {
+    if (c != '\t' && c != EOF) {
+      name[i ++] = c;
+    } else if (c == EOF) {
+      return false;
+    } else {
+      break;
+    }
+  }
+
+  i = 0;
+  while ((c = fgetc(record_file)) && i < RECORD_NAME_BUFFER_SIZE) {
+    if (c != '\n' && c != EOF) {
+      score_buffer[i ++] = c;
+    } else if (c == EOF) {
+      return false;
+    } else {
+      break;
+    }
+  }
+
+  *score = atoi(score_buffer);
+  return true;
+}
 
 record *record_init() {
   char name[128];
@@ -15,7 +47,7 @@ record *record_init() {
   record_file = fopen(RECORD_FILE_PATH, "r");
   if (record_file) {
     while (!feof(record_file)) {
-      if (fscanf(record_file, ENTRY_FORMAT, name, &score) == 0)
+      if (!read_line(record_file, name, &score))
         break;
       record_insert(r, name, score);
     }
@@ -102,7 +134,7 @@ void record_save(const record *r) {
     uint32_t i;
     if (record_file) {
       for (i = 0 ; i < r->entry_count ; i ++) {
-        fprintf(record_file, ENTRY_FORMAT,
+        fprintf(record_file, RECORD_ENTRY_FORMAT,
                 r->entries[i].name, r->entries[i].score);
       }
       fclose(record_file);
@@ -121,4 +153,6 @@ void record_destroy(record *r) {
   }
 }
 
-#undef ENTRY_FORMAT
+#undef RECORD_ENTRY_FORMAT
+#undef RECORD_NAME_BUFFER_SIZE
+

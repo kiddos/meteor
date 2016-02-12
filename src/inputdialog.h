@@ -13,7 +13,7 @@ extern const double INPUT_DIALOG_INNER_PADDING;
 
 typedef struct input_dialog_t {
   ALLEGRO_FONT *font;
-  ALLEGRO_COLOR border_color;
+  ALLEGRO_COLOR border_color, bg_color;
   char *prompt;
   char text[INPUT_DIALOG_BUFFER_SIZE];
   bool should_intercept_keyboard_input;
@@ -23,6 +23,7 @@ typedef struct input_dialog_t {
 
 input_dialog *input_dialog_init(const char * const prompt,
                                 const ALLEGRO_COLOR border_color,
+                                const ALLEGRO_COLOR bg_color,
                                 const char * const font_path,
                                 const size window_size);
 void input_dialog_retrieve_text(const input_dialog *id,

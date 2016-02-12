@@ -30,7 +30,7 @@ void input_dialog_retrieve_text(const input_dialog *id,
                                 char text[INPUT_DIALOG_BUFFER_SIZE]);
 void input_dialog_enable_intercept_keyboard_input(input_dialog *id,
                                                   const bool enable);
-void input_dialog_enter_char(input_dialog *id, const char c);
+bool input_dialog_enter_char(input_dialog *id, const char c);
 void input_dialog_update(input_dialog *id, const size window_size);
 void input_dialog_draw(const input_dialog *id);
 void input_dialog_destroy(input_dialog *id);

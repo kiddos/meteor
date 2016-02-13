@@ -25,6 +25,7 @@ typedef enum {
   MENU_SELECTION_START,
   MENU_SELECTION_RESTART,
   MENU_SELECTION_HELP,
+  MENU_SELECTION_RECORD,
   MENU_SELECTION_EXIT
 } menu_selection;
 
@@ -50,6 +51,7 @@ typedef struct menu_t {
     input_dialog *id;
     char name[1024];
     bool record_entered;
+    bool display_record;
   } record_menu;
 } menu;
 
@@ -60,6 +62,7 @@ void menu_set_visible(menu *m, const bool visible);
 void menu_set_mode(menu *m, const menu_mode mode);
 bool menu_is_displaying_help(const menu *m);
 void menu_toggle_display_help(menu *m);
+void menu_toggle_display_record(menu *m);
 void menu_move_up_selection(menu *m);
 void menu_move_down_selection(menu *m);
 void menu_change_selection_with_mouse(menu *m, const point mouse);

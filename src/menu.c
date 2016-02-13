@@ -76,6 +76,7 @@ menu *menu_init(const char * const font_path, const size window_size) {
                                         color_white(), color_dark_gray(),
                                         FONT_PATH, window_size);
   m->record_menu.record_entered = false;
+  m->record_menu.display_record = false;
   return m;
 }
 
@@ -126,6 +127,14 @@ void menu_toggle_display_help(menu *m) {
   if (m != NULL) {
     help_reset(m->help_menu.h);
     m->help_menu.display_help = !m->help_menu.display_help;
+  } else {
+    error_message("menu object null pointer");
+  }
+}
+
+void menu_toggle_display_record(menu *m) {
+  if (m != NULL) {
+    m->record_menu.display_record = !m->record_menu.display_record;
   } else {
     error_message("menu object null pointer");
   }

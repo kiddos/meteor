@@ -130,6 +130,28 @@ void record_remove_entry(record *r, const size_t index) {
   }
 }
 
+void record_sort_entries(record *r) {
+  if (r != NULL) {
+    uint32_t i, j;
+    for (i = 0 ; i < r->entry_count ; i ++) {
+      for (j = i + 1 ; j < r->entry_count ; j ++) {
+        if (r->entries[i].score < r->entries[j].score) {
+          char *temp_name = r->entries[i].name;
+          int temp_score = r->entries[i].score;
+
+          r->entries[i].name = r->entries[j].name;
+          r->entries[i].score = r->entries[j].score;
+
+          r->entries[j].name = temp_name;
+          r->entries[j].score = temp_score;
+        }
+      }
+    }
+  } else {
+    error_message("record null pointer");
+  }
+}
+
 void record_save(const record *r) {
   if (r != NULL) {
     FILE *record_file = fopen(RECORD_FILE_PATH, "w");

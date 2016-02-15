@@ -37,7 +37,7 @@ typedef struct menu_t {
   menu_mode mode;
   bool is_visible;
   uint8_t selection;
-  menu_selection selections[3];
+  menu_selection selections[4];
   point title_center, option_center;
   size window_size;
 

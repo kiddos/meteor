@@ -10,6 +10,7 @@
 const char * const MENU_START_TEXT = "START";
 const char * const MENU_RESTART_TEXT = "PLAY AGAIN";
 const char * const MENU_HELP_TEXT = "HELP";
+const char * const MENU_RECORD_TEXT = "RECORD";
 const char * const MENU_EXIT_TEXT = "EXIT";
 const double MENU_OPTION_PADDING = 20;
 
@@ -55,7 +56,8 @@ menu *menu_init(const char * const font_path, const size window_size) {
   m->selection = 0;
   m->selections[0] = MENU_SELECTION_START;
   m->selections[1] = MENU_SELECTION_HELP;
-  m->selections[2] = MENU_SELECTION_EXIT;
+  m->selections[2] = MENU_SELECTION_RECORD;
+  m->selections[3] = MENU_SELECTION_EXIT;
 
   m->title_center.x = window_size.w / 2;
   m->title_center.y = (window_size.h - 5 * COMPUTE_OPTION_FONT_SIZE(window_size) -
@@ -71,7 +73,11 @@ menu *menu_init(const char * const font_path, const size window_size) {
                                         m->option_center.y));
   m->help_menu.display_help = false;
 
-  m->record_menu.r = record_init();
+  m->record_menu.r = record_init(FONT_PATH, color_white(),
+                                 point_init(m->option_center.x,
+                                            m->option_center.y +
+                                            MENU_OPTION_PADDING),
+                                 window_size);
   m->record_menu.id = input_dialog_init(MENU_RECORD_NAME_PROMPT,
                                         color_white(), color_dark_gray(),
                                         FONT_PATH, window_size);
@@ -161,17 +167,18 @@ void menu_move_down_selection(menu *m) {
 }
 
 void menu_change_selection_with_mouse(menu *m, const point mouse) {
-  const char *option_text[3];
+  const char *option_text[4];
   if (m->mode == MENU_START) {
     option_text[0] = MENU_START_TEXT;
   } else {
     option_text[0] = MENU_RESTART_TEXT;
   }
   option_text[1] = MENU_HELP_TEXT;
-  option_text[2] = MENU_EXIT_TEXT;
+  option_text[2] = MENU_RECORD_TEXT;
+  option_text[3] = MENU_EXIT_TEXT;
 
   int i;
-  for (i = 0 ; i < 3 ; i ++) {
+  for (i = 0 ; i < 4 ; i ++) {
     const int text_width = al_get_text_width(m->option_font, option_text[i]);
     if (mouse.x >= m->option_center.x - text_width/2 - MENU_OPTION_PADDING/2 &&
         mouse.x <= m->option_center.x + text_width/2 + MENU_OPTION_PADDING/2 &&
@@ -269,20 +276,25 @@ void menu_update(menu *m, const size window_size) {
     if (m->record_menu.id->should_intercept_keyboard_input) {
       input_dialog_update(m->record_menu.id, window_size);
     }
+
+    if (m->record_menu.display_record) {
+      record_update(m->record_menu.r, window_size);
+    }
   }
 }
 
 void menu_draw(const menu *m) {
   if (m->is_visible) {
     uint32_t i;
-    const char *option_text[3];
+    const char *option_text[4];
     if (m->mode == MENU_START) {
       option_text[0] = MENU_START_TEXT;
     } else {
       option_text[0] = MENU_RESTART_TEXT;
     }
     option_text[1] = MENU_HELP_TEXT;
-    option_text[2] = MENU_EXIT_TEXT;
+    option_text[2] = MENU_RECORD_TEXT;
+    option_text[3] = MENU_EXIT_TEXT;
 
     if (m->mode == MENU_GAME_OVER) {
       al_draw_scaled_bitmap(m->cover, 0, 0,
@@ -297,13 +309,16 @@ void menu_draw(const menu *m) {
                 m->title_center.x, m->title_center.y,
                 ALLEGRO_ALIGN_CENTER, PROJECT_NAME);
 
-    // decide rather to draw help or option
+    // decide rather to draw help, record, or option
     if (m->help_menu.display_help) {
-      // help menu
+      // help
       help_draw(m->help_menu.h);
+    } else if (m->record_menu.display_record) {
+      // record
+      record_draw(m->record_menu.r);
     } else {
       // option
-      for (i = 0 ; i < 3 ; i ++) {
+      for (i = 0 ; i < 4 ; i ++) {
         if (m->selection == i) {
           al_draw_text(m->option_font, m->option_selected_color,
                       m->option_center.x,

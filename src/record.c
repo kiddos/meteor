@@ -2,8 +2,13 @@
 
 #define RECORD_ENTRY_FORMAT "%s\t%d\n"
 #define RECORD_NAME_BUFFER_SIZE 128
+#define RECORD_NAME_TITLE "NAME"
+#define RECORD_SCORE_TITLE "SCORE"
 
 const char * const RECORD_FILE_PATH = "res/record.data";
+const uint32_t RECORD_FONT_SIZE = 16;
+const uint32_t RECORD_MAX_DISPLAY_COUNT = 10;
+const double RECORD_ENTRY_PADDING = 15;
 
 static bool read_line(FILE *record_file,
                       char name[RECORD_NAME_BUFFER_SIZE],
@@ -38,13 +43,17 @@ static bool read_line(FILE *record_file,
   return true;
 }
 
-record *record_init() {
+record *record_init(const char * const font_path,
+                    const ALLEGRO_COLOR text_color,
+                    const point center,
+                    const size window_size) {
   char name[128];
   uint32_t score;
   FILE *record_file = NULL;
   record *r = (record *) malloc(sizeof(record));
   r->entries = NULL;
   r->entry_count = 0;
+
 
   record_file = fopen(RECORD_FILE_PATH, "r");
   if (record_file) {
@@ -53,7 +62,23 @@ record *record_init() {
         break;
       record_insert(r, name, score);
     }
+
+    fclose(record_file);
   }
+
+  r->center = center;
+  r->area = size_init(window_size.w / 2, window_size.h * 0.8);
+  r->font = al_load_font(font_path, RECORD_FONT_SIZE,
+                         ALLEGRO_TTF_NO_KERNING);
+  if (!r->font) {
+    error_message("fail to load font for record");
+    free(r->entries);
+    free(r);
+    return NULL;
+  }
+  r->target_color = text_color;
+  r->display_color = al_map_rgba(0, 0, 0, 0);
+
   return r;
 }
 
@@ -166,6 +191,67 @@ void record_save(const record *r) {
   }
 }
 
+void record_reset(record *r) {
+  if (r != NULL) {
+    r->display_color = al_map_rgba(0, 0, 0, 0);
+  } else {
+    error_message("record null pointer");
+  }
+}
+
+void record_update(record *r, const size window_size) {
+  unsigned char dr = 0, dg = 0, db = 0, da = 0;
+  unsigned char tr = 0, tg = 0, tb = 0, ta = 0;
+
+  al_unmap_rgba(r->display_color, &dr, &dg, &db, &da);
+  al_unmap_rgba(r->target_color, &tr, &tg, &tb, &ta);
+
+  if (dr < tr)
+    dr ++;
+  if (dg < tg)
+    dg ++;
+  if (db < tb)
+    db ++;
+  if (da < ta)
+    da ++;
+
+  r->display_color = al_map_rgba(dr, dg, db, da);
+
+  r->area = size_init(window_size.w / 2, window_size.h * 0.8);
+}
+
+void record_draw(const record *r) {
+  uint32_t i;
+  char score_buffer[128];
+  // title
+  al_draw_text(r->font, r->display_color,
+               r->center.x - r->area.w / 2,
+               r->center.y,
+               ALLEGRO_ALIGN_LEFT, RECORD_NAME_TITLE);
+
+  al_draw_text(r->font, r->display_color,
+               r->center.x + r->area.w / 2,
+               r->center.y,
+               ALLEGRO_ALIGN_RIGHT, RECORD_SCORE_TITLE);
+
+  const uint32_t max = r->entry_count > RECORD_MAX_DISPLAY_COUNT ?
+        RECORD_MAX_DISPLAY_COUNT : r->entry_count;
+  for (i = 0 ; i < max ; i ++) {
+    memset(score_buffer, '\0', 128);
+    snprintf(score_buffer, 128, "%d", r->entries[i].score);
+
+    al_draw_text(r->font, r->display_color,
+                r->center.x - r->area.w / 2,
+                r->center.y + (i + 1) * RECORD_ENTRY_PADDING,
+                ALLEGRO_ALIGN_LEFT, r->entries[i].name);
+
+    al_draw_text(r->font, r->display_color,
+                r->center.x + r->area.w / 2,
+                r->center.y + (i + 1) * RECORD_ENTRY_PADDING,
+                ALLEGRO_ALIGN_RIGHT, score_buffer);
+  }
+}
+
 void record_destroy(record *r) {
   if (r != NULL) {
     uint32_t i;
@@ -179,4 +265,6 @@ void record_destroy(record *r) {
 
 #undef RECORD_ENTRY_FORMAT
 #undef RECORD_NAME_BUFFER_SIZE
+#undef RECORD_NAME_TITLE
+#undef RECORD_SCORE_TITLE
 

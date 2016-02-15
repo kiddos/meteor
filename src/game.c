@@ -296,6 +296,9 @@ void game_main_loop(game *g) {
                   case MENU_SELECTION_HELP:
                     menu_toggle_display_help(g->panel.m);
                     break;
+                  case MENU_SELECTION_RECORD:
+                    menu_toggle_display_record(g->panel.m);
+                    break;
                   case MENU_SELECTION_EXIT:
                     g->core.running = false;
                     redraw = false;

@@ -140,6 +140,8 @@ void menu_toggle_display_help(menu *m) {
 
 void menu_toggle_display_record(menu *m) {
   if (m != NULL) {
+    record_reset(m->record_menu.r);
+    record_sort_entries(m->record_menu.r);
     m->record_menu.display_record = !m->record_menu.display_record;
   } else {
     error_message("menu object null pointer");

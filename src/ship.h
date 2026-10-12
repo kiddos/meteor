@@ -33,8 +33,11 @@ typedef struct ship_attr_t {
   uint32_t level;
   double damage;
   bool is_buffed;
+  double triple_shot_timer;
   bool is_immune;
   double time_stamp;
+  bool shield_active;
+  double shield_timer;
 } ship_attr;
 
 typedef struct ship_t {
@@ -58,7 +61,11 @@ int32_t ship_get_level(const ship *s);
 double ship_get_mana(const ship *s);
 void ship_increase_level(ship *s);
 void ship_increase_mana(ship *s, const double mana);
+void ship_add_life(ship *s);
+void ship_activate_triple_shot(ship *s, double duration);
+void ship_activate_shield(ship *s, double duration);
 void ship_shoot_bullet(ship *s);
+bool ship_trigger_bomb(ship *s, meteor_shower *ms, size window_size);
 void ship_take_damage(ship *s);
 bool ship_game_over(const ship *s);
 void ship_reset(ship *s, const size window_size);

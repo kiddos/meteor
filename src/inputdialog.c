@@ -140,21 +140,22 @@ void input_dialog_draw(const input_dialog *id) {
                            right_bound, bot_bound, id->bg_color);
   al_draw_rectangle(left_bound, top_bound,
                     right_bound, bot_bound, id->border_color, 3);
+  const int font_h = al_get_font_line_height(id->font);
   al_draw_text(id->font, id->border_color,
                left_bound + INPUT_DIALOG_PADDING,
-               top_bound + INPUT_DIALOG_PADDING + id->font->height,
+               top_bound + INPUT_DIALOG_PADDING + font_h,
                ALLEGRO_ALIGN_LEFT, id->prompt);
 
   al_draw_rectangle(left_bound + INPUT_DIALOG_PADDING,
-                    top_bound + 2 * INPUT_DIALOG_PADDING + 2 * id->font->height -
+                    top_bound + 2 * INPUT_DIALOG_PADDING + 2 * font_h -
                     INPUT_DIALOG_INNER_PADDING,
                     right_bound - INPUT_DIALOG_PADDING,
-                    top_bound + 2 * INPUT_DIALOG_PADDING + 3 * id->font->height +
+                    top_bound + 2 * INPUT_DIALOG_PADDING + 3 * font_h +
                     INPUT_DIALOG_INNER_PADDING,
                     id->border_color, 2);
   al_draw_text(id->font, id->border_color,
                left_bound + INPUT_DIALOG_PADDING + INPUT_DIALOG_INNER_PADDING,
-               top_bound + 2 * INPUT_DIALOG_PADDING + 2 * id->font->height,
+               top_bound + 2 * INPUT_DIALOG_PADDING + 2 * font_h,
                ALLEGRO_ALIGN_LEFT, id->text);
 }
 

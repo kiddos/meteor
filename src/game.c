@@ -20,6 +20,9 @@ game *game_init(const int w, const int h) {
     return NULL;
   }
 
+  g->object.powerups = powerup_list_init();
+  g->object.fx = fx_system_init(g->core.window_size);
+
   g->core.timer = al_create_timer(1.0 / FPS);
   if (!g->core.timer) {
     error_message("fail to create allegro timer");
@@ -198,6 +201,25 @@ void game_main_loop(game *g) {
                                               g->core.window_size.h -
                                               STATUS_BAR_HEIGHT));
             meteor_shower_update(g->object.ms, g->core.window_size);
+            if (g->object.powerups) {
+              powerup_list_update(g->object.powerups, g->core.window_size);
+            }
+            if (g->object.fx) {
+              fx_system_update(g->object.fx, g->core.window_size);
+            }
+
+            // check destroyed meteors and spawn powerups / explosions
+            meteor_count destroyed = meteor_shower_get_destroy_count(g->object.ms);
+            uint32_t total_destroyed = destroyed.small + destroyed.medium + destroyed.large;
+            if (total_destroyed > 0) {
+              if (g->object.powerups) {
+                powerup_list_spawn(g->object.powerups, g->object.s->center);
+              }
+              if (g->object.fx) {
+                fx_system_spawn_explosion(g->object.fx, g->object.s->center, al_map_rgb(255, 165, 0), 20);
+                fx_system_add_combo(g->object.fx);
+              }
+            }
 
             // collision detection
             if (ship_check_collision(g->object.s, g->object.ms,
@@ -213,6 +235,50 @@ void game_main_loop(game *g) {
                 menu_enable_intercept_keyboard_input(g->panel.m, true);
               }
             }
+
+            // ship pickup powerups
+            if (g->object.powerups && g->object.powerups->head) {
+              powerup *pcurr = g->object.powerups->head;
+              powerup *pprev = NULL;
+              while (pcurr) {
+                double dx = g->object.s->center.x - pcurr->center.x;
+                double dy = g->object.s->center.y - pcurr->center.y;
+                double dist = sqrt(dx * dx + dy * dy);
+                if (dist < (SHIP_SIZE / 2.0 + 15.0)) {
+                  // collect powerup!
+                  switch (pcurr->type) {
+                    case POWERUP_HEALTH:
+                      ship_add_life(g->object.s);
+                      break;
+                    case POWERUP_MANA:
+                      ship_increase_mana(g->object.s, 50.0);
+                      break;
+                    case POWERUP_TRIPLE_SHOT:
+                      ship_activate_triple_shot(g->object.s, 10.0);
+                      break;
+                    case POWERUP_SHIELD:
+                      ship_activate_shield(g->object.s, 8.0);
+                      break;
+                    default:
+                      break;
+                  }
+                  powerup *to_free = pcurr;
+                  if (pprev) {
+                    pprev->next = pcurr->next;
+                    pcurr = pcurr->next;
+                  } else {
+                    g->object.powerups->head = pcurr->next;
+                    pcurr = pcurr->next;
+                  }
+                  if (to_free->bitmap) al_destroy_bitmap(to_free->bitmap);
+                  free(to_free);
+                } else {
+                  pprev = pcurr;
+                  pcurr = pcurr->next;
+                }
+              }
+            }
+
             // update panel
             status_bar_update(g->panel.sb, g->core.window_size);
           }
@@ -275,6 +341,11 @@ void game_main_loop(game *g) {
             case ALLEGRO_KEY_RIGHT:
               ship_move(g->object.s, RIGHT);
               break;
+            case ALLEGRO_KEY_B:
+              if (!menu_is_visible(g->panel.m)) {
+                ship_trigger_bomb(g->object.s, g->object.ms, g->core.window_size);
+              }
+              break;
             case ALLEGRO_KEY_ENTER:
               if (menu_is_visible(g->panel.m) &&
                   !menu_should_intercept_keyboard_input(g->panel.m)) {
@@ -292,6 +363,10 @@ void game_main_loop(game *g) {
                     ship_reset(g->object.s, g->core.window_size);
                     status_bar_reset(g->panel.sb);
                     status_bar_start(g->panel.sb);
+                    if (g->object.powerups) {
+                      powerup_list_destroy(g->object.powerups);
+                      g->object.powerups = powerup_list_init();
+                    }
                     break;
                   case MENU_SELECTION_HELP:
                     menu_toggle_display_help(g->panel.m);
@@ -322,11 +397,21 @@ void game_main_loop(game *g) {
 
         if (!menu_is_in_start_mode(g->panel.m)) {
           // object drawing
+          if (g->object.fx) {
+            fx_system_draw(g->object.fx, g->panel.sb->font, g->core.window_size);
+          }
           ship_draw(g->object.s);
           meteor_shower_draw(g->object.ms);
+          if (g->object.powerups) {
+            powerup_list_draw(g->object.powerups);
+          }
 
           // panel drawing
           status_bar_draw(g->panel.sb);
+        } else {
+          if (g->object.fx) {
+            fx_system_draw(g->object.fx, NULL, g->core.window_size);
+          }
         }
 
         // draw the menu
@@ -352,6 +437,10 @@ void game_destroy(game *g) {
       ship_destroy(g->object.s);
     if (g->object.ms)
       meteor_shower_destroy(g->object.ms);
+    if (g->object.powerups)
+      powerup_list_destroy(g->object.powerups);
+    if (g->object.fx)
+      fx_system_destroy(g->object.fx);
     if (g->panel.sb)
       status_bar_destroy(g->panel.sb);
     if (g->panel.m)

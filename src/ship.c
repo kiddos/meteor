@@ -54,8 +54,11 @@ ship *ship_init(const point start) {
                                              CONFIG_SHIP_LEVEL_KEY));
     s->attr.damage = SHIP_STARTING_DAMAGE;
     s->attr.is_buffed = false;
+    s->attr.triple_shot_timer = 0;
     s->attr.is_immune = false;
     s->attr.time_stamp = 0;
+    s->attr.shield_active = false;
+    s->attr.shield_timer = 0;
 
     al_destroy_config(config);
     return s;
@@ -128,6 +131,22 @@ void ship_update(ship *s, const size window_size) {
     if (time_passed >= SHIP_IMMUNE_DURATION) {
       s->attr.is_immune = false;
       s->attr.time_stamp = 0;
+    }
+  }
+
+  // check shield duration
+  if (s->attr.shield_active) {
+    const double time_passed = al_get_time() - s->attr.shield_timer;
+    if (time_passed >= 8.0) {
+      s->attr.shield_active = false;
+    }
+  }
+
+  // check triple shot duration
+  if (s->attr.triple_shot_timer > 0) {
+    const double time_passed = al_get_time() - s->attr.triple_shot_timer;
+    if (time_passed >= 10.0) {
+      s->attr.triple_shot_timer = 0;
     }
   }
 }
@@ -203,21 +222,71 @@ void ship_increase_level(ship *s) {
 
 void ship_increase_mana(ship *s, const double mana) {
   if (s != NULL) {
-    if (s->attr.mana + mana <= SHIP_MAX_MANA)
-      s->attr.mana += mana;
+    s->attr.mana += mana;
+    if (s->attr.mana > SHIP_MAX_MANA)
+      s->attr.mana = SHIP_MAX_MANA;
   } else {
     error_message("ship object null pointer");
   }
 }
 
+void ship_add_life(ship *s) {
+  if (s != NULL) {
+    if (s->attr.lives < 5) {
+      s->attr.lives ++;
+    }
+  }
+}
+
+void ship_activate_triple_shot(ship *s, double duration) {
+  if (s != NULL) {
+    s->attr.triple_shot_timer = al_get_time();
+  }
+}
+
+void ship_activate_shield(ship *s, double duration) {
+  if (s != NULL) {
+    s->attr.shield_active = true;
+    s->attr.shield_timer = al_get_time();
+  }
+}
+
+bool ship_trigger_bomb(ship *s, meteor_shower *ms, size window_size) {
+  if (s != NULL && ms != NULL) {
+    if (s->attr.mana >= 50.0) {
+      s->attr.mana -= 50.0;
+      meteor *iter = ms->meteors;
+      while (iter != NULL) {
+        meteor_take_damage(iter, 100.0);
+        iter = iter->next;
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
 void ship_shoot_bullet(ship *s) {
   if (s != NULL) {
     const point start = point_init(s->center.x, s->center.y);
-    if (s->bullets == NULL) {
-      s->bullets = bullet_init(start, s->direction, s->attr.damage);
-    } else {
-      bullet_add(s->bullets, start, s->direction, s->attr.damage);
+    if (s->attr.triple_shot_timer > 0) {
+      // Triple shot spreads angled bullets
+      double spread = M_PI / 12.0; // 15 degrees
+      if (s->bullets == NULL) {
+        s->bullets = bullet_init(start, s->direction, s->attr.damage);
+      } else {
+        bullet_add(s->bullets, start, s->direction, s->attr.damage);
+      }
+      bullet_add(s->bullets, start, s->direction - spread, s->attr.damage);
+      bullet_add(s->bullets, start, s->direction + spread, s->attr.damage);
       s->bullet_count = bullet_get_count(s->bullets);
+    } else {
+      if (s->bullets == NULL) {
+        s->bullets = bullet_init(start, s->direction, s->attr.damage);
+      } else {
+        bullet_add(s->bullets, start, s->direction, s->attr.damage);
+        s->bullet_count = bullet_get_count(s->bullets);
+      }
     }
 
     // shooting bullet cost mana
@@ -230,6 +299,13 @@ void ship_shoot_bullet(ship *s) {
 
 void ship_take_damage(ship *s) {
   if (s != NULL) {
+    if (s->attr.shield_active) {
+      // Shield absorbs damage completely
+      s->attr.shield_active = false;
+      s->attr.is_immune = true;
+      s->attr.time_stamp = al_get_time();
+      return;
+    }
     if (!s->attr.is_immune) {
       s->attr.lives --;
       s->attr.is_immune = true;
@@ -261,8 +337,11 @@ void ship_reset(ship *s, const size window_size) {
                                                 CONFIG_SHIP_LEVEL_KEY));
       s->attr.damage = SHIP_STARTING_DAMAGE;
       s->attr.is_buffed = false;
+      s->attr.triple_shot_timer = 0;
       s->attr.is_immune = false;
       s->attr.time_stamp = 0;
+      s->attr.shield_active = false;
+      s->attr.shield_timer = 0;
       al_destroy_config(config);
     }
 
@@ -372,6 +451,11 @@ void ship_draw(const ship *s) {
                                   SHIP_SIZE / bitmap_width,
                                   SHIP_SIZE / bitmap_height,
                                   s->direction, 0);
+  }
+
+  // draw shield ring if active
+  if (s->attr.shield_active) {
+    al_draw_circle(s->center.x, s->center.y, SHIP_SIZE * 0.75, al_map_rgb(180, 80, 255), 3);
   }
 
 #ifdef DEBUG

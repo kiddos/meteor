@@ -6,6 +6,8 @@
 #include "meteor.h"
 #include "statusbar.h"
 #include "menu.h"
+#include "powerup.h"
+#include "fx.h"
 
 // constants
 extern const double FPS;
@@ -23,6 +25,8 @@ typedef struct game_t {
   struct {
     ship *s;
     meteor_shower *ms;
+    powerup_list *powerups;
+    fx_system *fx;
   } object;
 
   struct {

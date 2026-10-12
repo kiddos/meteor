@@ -182,11 +182,12 @@ void menu_change_selection_with_mouse(menu *m, const point mouse) {
   int i;
   for (i = 0 ; i < 4 ; i ++) {
     const int text_width = al_get_text_width(m->option_font, option_text[i]);
+    const int font_h = al_get_font_line_height(m->option_font);
     if (mouse.x >= m->option_center.x - text_width/2 - MENU_OPTION_PADDING/2 &&
         mouse.x <= m->option_center.x + text_width/2 + MENU_OPTION_PADDING/2 &&
         mouse.y >= m->option_center.y + (i) * MENU_OPTION_PADDING &&
         mouse.y <= m->option_center.y + (i) * MENU_OPTION_PADDING +
-        (i + 1) * m->option_font->height) {
+        (i + 1) * font_h) {
       m->selection = i;
       break;
     }
@@ -320,18 +321,19 @@ void menu_draw(const menu *m) {
       record_draw(m->record_menu.r);
     } else {
       // option
+      const int font_h = al_get_font_line_height(m->option_font);
       for (i = 0 ; i < 4 ; i ++) {
         if (m->selection == i) {
           al_draw_text(m->option_font, m->option_selected_color,
                       m->option_center.x,
                       m->option_center.y + MENU_OPTION_PADDING * i +
-                      m->option_font->height * i,
+                      font_h * i,
                       ALLEGRO_ALIGN_CENTER, option_text[i]);
         } else {
           al_draw_text(m->option_font, m->option_nonselect_color,
                       m->option_center.x,
                       m->option_center.y + MENU_OPTION_PADDING * i +
-                      m->option_font->height * i,
+                      font_h * i,
                       ALLEGRO_ALIGN_CENTER, option_text[i]);
         }
       }
